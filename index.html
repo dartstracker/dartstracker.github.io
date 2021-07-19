@@ -24,10 +24,69 @@
 </head>
 
 <body>
+  <h1><img class="icon" src="images/preview.svg" alt="Dartboard icon"> Darts Tracker</h1>
   <div class="container">
-    <h1><img class="icon" src="images/preview.svg" alt="Dartboard icon"> Darts Tracker</h1>
+    <div id="game-select" class="button-holder">
+      <button class="green-button" onclick="loadCricket();">Cricket</button>
+      <button class="grey-button" disabled>'01</button>
+      <button class="grey-button" disabled>Baseball</button>
+      <button class="grey-button" disabled>Golf</button>
+    </div>
+    <div id="cricket" class="game-type">
+      <h2>Cricket</h2>
+      <div class="center">
+        <label for="player-count">Players:</label>
+        <input type="number" id="player-count" name="player-count" min="1" max="10" value="1"/>
+      </div>
+      <div class="player-holder">
+      </div>
+      <div id="player-template" style="display:none">
+        <label for="0-player-name">Player 1</label>
+        <input type="text" id="0-player-name" name="0-player-name" style="display:none"/>
+        <div class="player-buttons">
+          <div class="button-row">
+            <button>D</button>
+            <button>20</button>
+            <button>T</button>
+          </div>
+          <div class="button-row">
+            <button>D</button>
+            <button>19</button>
+            <button>T</button>
+          </div>
+          <div class="button-row">
+            <button>D</button>
+            <button>18</button>
+            <button>T</button>
+          </div>
+          <div class="button-row">
+            <button>D</button>
+            <button>17</button>
+            <button>T</button>
+          </div>
+          <div class="button-row">
+            <button>D</button>
+            <button>16</button>
+            <button>T</button>
+          </div>
+          <div class="button-row">
+            <button>D</button>
+            <button>15</button>
+            <button>T</button>
+          </div>
+          <div class="button-row">
+            <button>D</button>
+            <button>B</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="o1" class="game-type">
+      <h2>'01'</h2>
+      <p>Under Construction</p>
+    </div>
   	<p class="copyright">Copyright © 2021 Joe Frizzell. All Rights Reserved</p>
+  </body>
   </div>
-</body>
 
 </html>

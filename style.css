@@ -18,23 +18,74 @@ body {
 
 }
 h1 {
-  width: calc(100% - 40px);
-  margin: 20px;
+  width: 100%;
+  margin: 20px 0 1em 0;
+  font-size: 3rem;
+  text-align: center;
+  font-weight: normal;
+}
+h2 {
+  margin: 0.5em;
+  font-size: 2.5rem;
+  font-weight: normal;
+  text-align: center;
+}
+p {
+  margin: 0;
+}
+button{
+  font-family: "JoeHand", sans-serif;
+  flex: auto;
   font-size: 2rem;
+  padding: 20px;
+  border-radius: 10px;
+}
+input, label {
+  font-size: 2rem;
+  padding: 10px;
+  border-radius: 10px;
 }
 .container {
   background-color: #484848;
   max-width: 1024px;
   margin: auto;
+  padding: 10px;
 }
-.icon{
-  height: 1em;
+.icon {
+  height: 1.5em;
+  margin-bottom: -0.5em;
 }
+.center {
+  text-align: center;
+}
+.button-holder {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+}
+.button-holder > button {
+  margin: 5px;
+}
+.green-button {
+  background-color: green;
+  font-weight: bold;
+  color: white;
+}
+
 .copyright {
-  font-size: 1rem;
+  font-size: .7rem;
+  text-align: center;
   position: fixed;
-  left: 50%;
   bottom: 0;
-  transform: translate(-50%, -50%);
-  margin: 0;
+  margin: 3px;
+}
+@media only screen and (max-width: 600px) {
+  .button-holder {
+    display:block;
+  }
+  .button-holder > button {
+    display: block;
+    margin: 5px auto;
+    width: calc(100% - 10px);
+  }
 }
