@@ -37,15 +37,21 @@ function updatePlayers(){
   var playerTemplate = document.getElementById('player-template');
   var playerHolder = document.getElementById('player-holder');
   var newPlayerCount = parseInt(playerCounter.value);
+  var playerCountChange = newPlayerCount - currentPlayerCount;
   if(newPlayerCount > currentPlayerCount){
-    newPlayerDiv = playerTemplate.cloneNode(true);
-    newPlayerDiv.id = "player-" + newPlayerCount;
-    newPlayerDiv.style.display = "block";
-    nameLabel = newPlayerDiv.getElementsByTagName('label')[0];
-    nameLabel.innerHTML = "Player " + newPlayerCount;
-    playerHolder.appendChild(newPlayerDiv);
+    for(i = 0; i < playerCountChange; i++){
+      newPlayerDiv = playerTemplate.cloneNode(true);
+      currentPlayerIndex = currentPlayerCount + 1 + i;
+      newPlayerDiv.id = "player-" + currentPlayerIndex;
+      newPlayerDiv.style.display = "block";
+      nameLabel = newPlayerDiv.getElementsByTagName('label')[0];
+      nameLabel.innerHTML = "Player " + currentPlayerIndex;
+      playerHolder.appendChild(newPlayerDiv);
+    }
   } else if (newPlayerCount < currentPlayerCount){
-    playerHolder.removeChild(playerHolder.lastChild);
+    for(i = 0; i > playerCountChange; i--){
+      playerHolder.removeChild(playerHolder.lastChild);
+    }
   }
   currentPlayerCount = newPlayerCount;
 }

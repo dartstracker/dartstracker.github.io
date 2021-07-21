@@ -80,6 +80,10 @@ label {
   font-weight: bold;
   color: white;
 }
+#player-count{
+  width: 4rem;
+  height: 4rem;
+}
 #player-holder {
   width: 100%;
   max-width: 1024px;
