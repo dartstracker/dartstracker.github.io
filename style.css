@@ -28,11 +28,10 @@ h1 {
   cursor: pointer;
 }
 h2 {
-  margin: 0.5em;
+  margin: 1em 0;
   font-size: 2.5rem;
   font-weight: normal;
-  text-align: left;
-  display: inline;
+  text-align: center;
 }
 p {
   margin: 0;
@@ -66,6 +65,12 @@ label {
 .center {
   text-align: center;
 }
+.right {
+  text-align: right;
+}
+.full-width {
+  width: 100%;
+}
 .button-holder {
   width: 100%;
   display: flex;
@@ -79,6 +84,14 @@ label {
   background-color: green;
   font-weight: bold;
   color: white;
+}
+#cricket-start {
+  display: flex;
+  justify-content: center;
+}
+#cricket-start > * {
+  flex-grow: 0;
+  padding: 10px;
 }
 #player-count{
   width: 4rem;
@@ -98,14 +111,17 @@ label {
 .player > label {
   width: 100%;
   display: block;
-  text-align: center;
+  margin: .5rem;
+}
+.player > p {
+  margin: .5rem;
 }
 .button-row {
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-around;
-  margin: .5rem 0;
+  margin: .25rem 0;
 }
 .button-row > button {
   flex-grow: 0;
@@ -113,7 +129,7 @@ label {
   color: white;
 }
 .button-row > * {
-  margin: .25rem;
+  margin: 0 .25rem;
 }
 .small-button {
   width: 3rem;
@@ -121,6 +137,9 @@ label {
 }
 .big-button {
   width: 4rem;
+  height: 4rem;
+}
+.done-button {
   height: 4rem;
 }
 .tracker:disabled,

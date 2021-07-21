@@ -27,26 +27,31 @@
   <h1 class="title" onclick="hideAll()"><img class="icon" src="images/preview.svg" alt="Dartboard icon"> Darts Tracker</h1>
   <div class="container">
     <div id="game-select" class="button-holder">
-      <button class="green-button" onclick="loadCricket();">Cricket</button>
+      <button class="green-button" onclick="showCricket();">Cricket</button>
       <button class="grey-button" disabled>'01</button>
       <button class="grey-button" disabled>Baseball</button>
       <button class="grey-button" disabled>Golf</button>
     </div>
-    <div id="cricket" class="game-type">
+    <div id="cricket" class="game-type" style="display:none">
       <h2>Cricket</h2>
-      <label for="player-count">Players:</label>
-      <input type="number" id="player-count" name="player-count" min="1" max="9" value="1" onchange="updatePlayers();"/>
+      <div id="cricket-start">
+        <button class="green-button" onclick="newCricket();">New Game</button>
+        <button class="grey-button" disabled>Load Game</button>
+      </div>
+      <div id="new-cricket" style="display:none">
+        <label for="player-count">Players:</label>
+        <input type="number" id="player-count" name="player-count" min="1" max="9" value="1" onchange="updatePlayers();"/>
+      </div>
       <div id="player-holder">
       </div>
       <div class="player" id="player-template" style="display:none">
         <label onclick="updateName(this)">Player #</label>
-        <input type="text" style="display:none"/>
-        <p>Points: <span class="score">0</span></p>
+        <p>Points: <span class="score">0</span> Darts: <span class="darts">3</span></p>
         <div class="player-buttons">
           <div class="button-row">
-            <button class="small-button">D</button>
-            <button class="big-button">20</button>
-            <button class="small-button">T</button>
+            <button class="small-button" onclick="cricketHit(this, 20, 2)">D</button>
+            <button class="big-button" onclick="cricketHit(this, 20, 1)">20</button>
+            <button class="small-button" onclick="cricketHit(this, 20, 3)">T</button>
             <input class="tracker" disabled>
           </div>
           <div class="button-row">
@@ -84,6 +89,12 @@
             <button class="big-button">B</button>
             <span class="small-button"></span>
             <input class="tracker" disabled>
+          </div>
+          <div class="button-row">
+            <button class="small-button"><</button>
+            <button class="done-button">Miss</button>
+            <span class="small-button"></span>
+            <span class="small-button"></span>
           </div>
         </div>
       </div>

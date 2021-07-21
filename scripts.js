@@ -24,13 +24,21 @@ function hideSelect(){
   gameselect.style.display = 'none';
 }
 
-function loadCricket(){
+function showCricket(){
   hideSelect();
   var cricketdiv = document.getElementById('cricket').style.display = '';
+}
+
+function newCricket() {
+  var newCricketDiv = document.getElementById('new-cricket');
+  newCricketDiv.style.display = "flex";
+  var cricketStartDiv = document.getElementById('cricket-start');
+  cricketStartDiv.style.display = "none";
   updatePlayers();
 }
 
 var currentPlayerCount = 0;
+var players = {};
 
 function updatePlayers(){
   var playerCounter = document.getElementById('player-count');
