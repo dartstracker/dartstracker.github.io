@@ -10,7 +10,6 @@ function checkHash(){
     hideAll();
   }
 }
-
 function hideAll(){
   var gametypes = document.getElementsByClassName('game-type');
   for (gtindex = 0; gtindex < gametypes.length; gtindex++) {
@@ -28,4 +27,29 @@ function hideSelect(){
 function loadCricket(){
   hideSelect();
   var cricketdiv = document.getElementById('cricket').style.display = '';
+  updatePlayers();
+}
+
+var currentPlayerCount = 0;
+
+function updatePlayers(){
+  var playerCounter = document.getElementById('player-count');
+  var playerTemplate = document.getElementById('player-template');
+  var playerHolder = document.getElementById('player-holder');
+  var newPlayerCount = parseInt(playerCounter.value);
+  if(newPlayerCount > currentPlayerCount){
+    newPlayerDiv = playerTemplate.cloneNode(true);
+    newPlayerDiv.id = "player-" + newPlayerCount;
+    newPlayerDiv.style.display = "block";
+    nameLabel = newPlayerDiv.getElementsByTagName('label')[0];
+    nameLabel.innerHTML = "Player " + newPlayerCount;
+    playerHolder.appendChild(newPlayerDiv);
+  } else if (newPlayerCount < currentPlayerCount){
+    playerHolder.removeChild(playerHolder.lastChild);
+  }
+  currentPlayerCount = newPlayerCount;
+}
+
+function updateName(element){
+
 }

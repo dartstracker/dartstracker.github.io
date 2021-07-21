@@ -24,11 +24,15 @@ h1 {
   text-align: center;
   font-weight: normal;
 }
+.title {
+  cursor: pointer;
+}
 h2 {
   margin: 0.5em;
   font-size: 2.5rem;
   font-weight: normal;
-  text-align: center;
+  text-align: left;
+  display: inline;
 }
 p {
   margin: 0;
@@ -37,13 +41,17 @@ button{
   font-family: "JoeHand", sans-serif;
   flex: auto;
   font-size: 2rem;
-  padding: 20px;
   border-radius: 10px;
+  cursor: pointer;
 }
-input, label {
+input {
   font-size: 2rem;
   padding: 10px;
   border-radius: 10px;
+}
+label {
+  font-size: 2rem;
+  margin: 10px;
 }
 .container {
   background-color: #484848;
@@ -64,11 +72,62 @@ input, label {
   flex-wrap: wrap;
 }
 .button-holder > button {
+  padding: 20px;
   margin: 5px;
 }
 .green-button {
   background-color: green;
   font-weight: bold;
+  color: white;
+}
+#player-holder {
+  width: 100%;
+  max-width: 1024px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+}
+.player {
+  margin: 1rem;
+  min-width: 200px;
+}
+.player > label {
+  width: 100%;
+  display: block;
+  text-align: center;
+}
+.button-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  margin: .5rem 0;
+}
+.button-row > button {
+  flex-grow: 0;
+  background-color: red;
+  color: white;
+}
+.button-row > * {
+  margin: .25rem;
+}
+.small-button {
+  width: 3rem;
+  height: 3rem;
+}
+.big-button {
+  width: 4rem;
+  height: 4rem;
+}
+.tracker:disabled,
+.tracker[disabled] {
+  text-align: center;
+  font-family: "JoeHand", sans-serif;
+  font-size: 2rem;
+  width: 3rem;
+  height: 3rem;
+  flex-grow: 0;
+  background-color: #383838;
   color: white;
 }
 
