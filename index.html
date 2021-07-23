@@ -45,55 +45,56 @@
       <div id="player-holder">
       </div>
       <div class="player" id="player-template" style="display:none">
-        <label onclick="updateName(this)">Player #</label>
-        <p>Points: <span class="score">0</span> Darts: <span class="darts">3</span></p>
+        <div class="name-holder">
+          <label class="name-label" onclick="addNameInput(this)">Player #</label>
+        </div>
+        <p><span>Round: <span class="round">1</span></span><span>Darts: <span class="darts">3</span></span><span>Points: <span class="score">0</span></span></p>
         <div class="player-buttons">
           <div class="button-row">
             <button class="small-button" onclick="cricketHit(this, 20, 2)">D</button>
             <button class="big-button" onclick="cricketHit(this, 20, 1)">20</button>
             <button class="small-button" onclick="cricketHit(this, 20, 3)">T</button>
-            <input class="tracker" disabled>
+            <input class="tracker" readonly>
           </div>
           <div class="button-row">
-            <button class="small-button">D</button>
-            <button class="big-button">19</button>
-            <button class="small-button">T</button>
-            <input class="tracker" disabled>
+            <button class="small-button" onclick="cricketHit(this, 19, 2)">D</button>
+            <button class="big-button" onclick="cricketHit(this, 19, 1)">19</button>
+            <button class="small-button" onclick="cricketHit(this, 19, 3)">T</button>
+            <input class="tracker" readonly>
           </div>
           <div class="button-row">
-            <button class="small-button">D</button>
-            <button class="big-button">18</button>
-            <button class="small-button">T</button>
-            <input class="tracker" disabled>
+            <button class="small-button" onclick="cricketHit(this, 18, 2)">D</button>
+            <button class="big-button" onclick="cricketHit(this, 18, 1)">18</button>
+            <button class="small-button" onclick="cricketHit(this, 18, 3)">T</button>
+            <input class="tracker" readonly>
           </div>
           <div class="button-row">
-            <button class="small-button">D</button>
-            <button class="big-button">17</button>
-            <button class="small-button">T</button>
-            <input class="tracker" disabled>
+            <button class="small-button" onclick="cricketHit(this, 17, 2)">D</button>
+            <button class="big-button" onclick="cricketHit(this, 17, 1)">17</button>
+            <button class="small-button" onclick="cricketHit(this, 17, 3)">T</button>
+            <input class="tracker" readonly>
           </div>
           <div class="button-row">
-            <button class="small-button">D</button>
-            <button class="big-button">16</button>
-            <button class="small-button">T</button>
-            <input class="tracker" disabled>
+            <button class="small-button" onclick="cricketHit(this, 16, 2)">D</button>
+            <button class="big-button" onclick="cricketHit(this, 16, 1)">16</button>
+            <button class="small-button" onclick="cricketHit(this, 16, 3)">T</button>
+            <input class="tracker" readonly>
           </div>
           <div class="button-row">
-            <button class="small-button">D</button>
-            <button class="big-button">15</button>
-            <button class="small-button">T</button>
-            <input class="tracker" disabled>
+            <button class="small-button" onclick="cricketHit(this, 15, 2)">D</button>
+            <button class="big-button" onclick="cricketHit(this, 15, 1)">15</button>
+            <button class="small-button" onclick="cricketHit(this, 15, 3)">T</button>
+            <input class="tracker" readonly>
           </div>
           <div class="button-row">
-            <button class="small-button">D</button>
-            <button class="big-button">B</button>
+            <button class="small-button" onclick="cricketHit(this, 'bull', 2)">D</button>
+            <button class="big-button" onclick="cricketHit(this, 'bull', 1)">B</button>
             <span class="small-button"></span>
-            <input class="tracker" disabled>
+            <input class="tracker" readonly>
           </div>
           <div class="button-row">
             <button class="small-button"><</button>
-            <button class="done-button">Miss</button>
-            <span class="small-button"></span>
+            <button class="done-button" onclick="cricketMiss(this)">Miss</button>
             <span class="small-button"></span>
           </div>
         </div>

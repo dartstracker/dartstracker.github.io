@@ -108,13 +108,16 @@ label {
   margin: 1rem;
   min-width: 200px;
 }
-.player > label {
-  width: 100%;
-  display: block;
-  margin: .5rem;
-}
 .player > p {
   margin: .5rem;
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+}
+.player > p > span {
+  display: inline-block;
+  width: 50%;
+  text-align: center;
 }
 .button-row {
   width: 100%;
@@ -124,7 +127,6 @@ label {
   margin: .25rem 0;
 }
 .button-row > button {
-  flex-grow: 0;
   background-color: red;
   color: white;
 }
@@ -141,9 +143,9 @@ label {
 }
 .done-button {
   height: 4rem;
+  flex-grow: 10;
 }
-.tracker:disabled,
-.tracker[disabled] {
+.tracker {
   text-align: center;
   font-family: "JoeHand", sans-serif;
   font-size: 2rem;
@@ -160,6 +162,27 @@ label {
   position: fixed;
   bottom: 0;
   margin: 3px;
+}
+.name-holder {
+  width: 250px;
+  display: flex;
+  align-items: center;
+}
+.name-label {
+  width: 100%;
+  display: block;
+  text-align: center;
+  margin: .5rem;
+}
+.name-input {
+  height: 4rem;
+  margin: 0;
+  width: 200px;
+}
+.name-button {
+  height: 4rem;
+  padding: 10px;
+  margin: 0;
 }
 @media only screen and (max-width: 600px) {
   .button-holder {
