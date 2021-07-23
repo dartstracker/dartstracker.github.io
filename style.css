@@ -44,6 +44,8 @@ button{
   font-size: 2rem;
   border-radius: 10px;
   cursor: pointer;
+  display: table-cell;
+  vertical-align: middle;
 }
 input {
   font-size: 2rem;
@@ -112,6 +114,8 @@ label {
 }
 .x-button {
   float: right;
+  font-size: 1rem;
+  margin-left: -1.5rem;
 }
 .player {
   margin: 1rem;
@@ -149,10 +153,12 @@ label {
 .small-button {
   width: 3rem;
   height: 3rem;
+  flex-grow: 0;
 }
 .big-button {
-  width: 4rem;
   height: 4rem;
+  min-width: 4rem;
+
 }
 .done-button {
   height: 4rem;
@@ -177,26 +183,31 @@ label {
   margin: 3px;
 }
 .name-holder {
-  width: 250px;
   display: flex;
   align-items: center;
+  justify-content: center;
+  align-items: center;
+  max-width: 200px;
 }
 .name-label {
-  width: 100%;
   display: block;
   text-align: center;
   margin: .5rem;
 }
 .name-input {
-  margin: 0;
-  width: 200px;
+  margin: -.25rem 0 0 3rem;
   padding: 5px;
+  max-width: 200px;
+  flex-grow: 0;
 }
 .name-button {
   background-color: green;
   color: white;
   padding: 5px;
   margin: 0;
+  height: 3rem;
+  width: 3rem;
+  flex-grow: 0;
 }
 @media only screen and (max-width: 600px) {
   .button-holder {

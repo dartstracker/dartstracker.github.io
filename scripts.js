@@ -53,7 +53,7 @@ var playerData = {
     bull: 0
   }
 }
-//
+// add cricket player template to player holder
 function addCricketPlayer(){
   var playerTemplate = document.getElementById('cricket-template');
   var playerHolder = document.getElementById('player-holder');
@@ -70,6 +70,7 @@ function addCricketPlayer(){
   nameLabel.innerHTML = 'Player ' + playerNumber;
   playerHolder.appendChild(newPlayerDiv);
 }
+// remove player from player template and players.
 function removePlayer(element){
   playerHolder = element.parentNode;
   playersIndex = playerHolder.getAttribute('players-index');
@@ -88,7 +89,6 @@ function removePlayer(element){
       thisPlayerHolder.setAttribute('players-index', i);
     }
   }
-  console.log(window.players);
 }
 // adding input to update player name
 function addNameInput(element){
