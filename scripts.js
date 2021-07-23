@@ -117,7 +117,7 @@ function updateName(element){
   nameHolder.removeChild(nameButton);
   nameHolder.removeChild(nameInput);
 }
-
+// updating display for a hit in cricket
 function cricketHit(element, target, count){
   rowHolder = element.parentNode;
   targetDisplay = rowHolder.getElementsByTagName('input')[0];
@@ -157,7 +157,7 @@ function cricketHit(element, target, count){
     targetDisplay.value = '0';
   }
 }
-
+// updating display for a miss in cricket
 function cricketMiss(element){
   rowHolder = element.parentNode;
   targetDisplay = rowHolder.getElementsByTagName('input')[0];
