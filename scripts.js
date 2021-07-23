@@ -42,7 +42,7 @@ var players = [];
 var playerData = {
   name: '',
   points: 0,
-  rounds: [],
+  rounds: [[]],
   hitcounts:{
     20: 0,
     19: 0,
@@ -156,6 +156,9 @@ function cricketHit(element, target, count){
   } else {
     targetDisplay.value = '0';
   }
+  if(dartsLeft == 0){
+    disablePlayerButtons(playerHolder);
+  }
 }
 // updating display for a miss in cricket
 function cricketMiss(element){
@@ -182,4 +185,47 @@ function cricketMiss(element){
   roundCounter.innerHTML = currentRound + 1;
   element.innerHTML = "Miss";
   console.log(players);
+}
+
+function disablePlayerButtons(element){
+  playerButtons = element.getElementsByTagName('button');
+  for(i = 0; i < playerButtons.length; i++){
+    thisButton = playerButtons[i];
+    thisButton.disabled = true;
+  }
+  checkRoundEnd();
+}
+
+function checkRoundEnd(){
+  roundComplete = true;
+  for(i = 0; i < window.players.length; i++){
+    thisPlayer = window.players[i];
+    currentRound = thisPlayer.rounds.length - 1;
+    if(thisPlayer.rounds[currentRound].length < 3){
+      roundComplete = false;
+    }
+  }
+  if(roundComplete){
+    startNewCricketRound();
+  }
+}
+
+function startNewCricketRound(){
+  playerHolder = document.getElementById('player-holder');
+  for(i = 0; i < window.players.length; i++){
+    thisPlayer = window.players[i];
+    thisPlayer.rounds.push([]);
+    thisPlayerDiv = document.getElementById('player-' + (i + 1));
+    roundCounter = thisPlayerDiv.getElementsByClassName('round')[0];
+    roundCounter.innerHTML = thisPlayer.rounds.length.toString();
+    dartsCounter = thisPlayerDiv.getElementsByClassName('darts')[0];
+    dartsCounter.innerHTML = '3';
+    doneButton = thisPlayerDiv.getElementsByClassName('done-button')[0];
+    doneButton.innerHTML = 'Miss';
+  }
+  playerButtons = playerHolder.getElementsByTagName('button');
+  for(i = 0; i < playerButtons.length; i++){
+    thisButton = playerButtons[i];
+    thisButton.disabled = false;
+  }
 }

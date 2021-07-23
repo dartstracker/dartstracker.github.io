@@ -130,6 +130,10 @@ label {
   background-color: red;
   color: white;
 }
+.button-row > button:disabled {
+  background-color: DimGrey;
+  cursor: not-allowed;
+}
 .button-row > * {
   margin: 0 .25rem;
 }
