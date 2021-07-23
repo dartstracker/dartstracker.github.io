@@ -34,7 +34,7 @@ function newCricket() {
   newCricketDiv.style.display = 'flex';
   var cricketStartDiv = document.getElementById('cricket-start');
   cricketStartDiv.style.display = 'none';
-  updatePlayers();
+  addCricketPlayer();
 }
 
 var currentPlayerCount = 0;
@@ -54,40 +54,50 @@ var playerData = {
   }
 }
 //
-function updatePlayers(){
-  var playerCounter = document.getElementById('player-count');
-  var playerTemplate = document.getElementById('player-template');
+function addCricketPlayer(){
+  var playerTemplate = document.getElementById('cricket-template');
   var playerHolder = document.getElementById('player-holder');
-  var newPlayerCount = parseInt(playerCounter.value);
-  var playerCountChange = newPlayerCount - currentPlayerCount;
-  if(newPlayerCount > currentPlayerCount){
-    for(i = 0; i < playerCountChange; i++){
-      playersIndex = currentPlayerCount + i
-      currentPlayerIndex = currentPlayerCount + 1 + i;
-      newPlayerData = JSON.parse(JSON.stringify(playerData));
-      newPlayerData.name = 'Player ' + currentPlayerIndex
-      window.players.push(newPlayerData);
-      newPlayerDiv = playerTemplate.cloneNode(true);
-      newPlayerDiv.id = 'player-' + currentPlayerIndex;
-      newPlayerDiv.setAttribute('players-index', playersIndex);
-      newPlayerDiv.style.display = 'block';
-      nameLabel = newPlayerDiv.getElementsByTagName('label')[0];
-      nameLabel.innerHTML = 'Player ' + currentPlayerIndex;
-      playerHolder.appendChild(newPlayerDiv);
-    }
-  } else if (newPlayerCount < currentPlayerCount){
-    for(i = 0; i > playerCountChange; i--){
-      playerHolder.removeChild(playerHolder.lastChild);
+  currentPlayerIndex = window.players.length;
+  playerNumber = currentPlayerIndex + 1;
+  newPlayerData = JSON.parse(JSON.stringify(playerData));
+  newPlayerData.name = 'Player ' + playerNumber;
+  window.players.push(newPlayerData);
+  newPlayerDiv = playerTemplate.cloneNode(true);
+  newPlayerDiv.id = 'player-' + playerNumber;
+  newPlayerDiv.setAttribute('players-index', currentPlayerIndex);
+  newPlayerDiv.style.display = 'block';
+  nameLabel = newPlayerDiv.getElementsByTagName('label')[0];
+  nameLabel.innerHTML = 'Player ' + playerNumber;
+  playerHolder.appendChild(newPlayerDiv);
+}
+function removePlayer(element){
+  playerHolder = element.parentNode;
+  playersIndex = playerHolder.getAttribute('players-index');
+  if(playersIndex == 0){
+    window.players.shift();
+  } else if(playersIndex == (window.players.length -1)){
+    window.players.pop();
+  } else {
+    window.players.splice(playersIndex, 1);
+  }
+  playerHolder.parentNode.removeChild(playerHolder);
+  for(i = 0; i < window.players.length; i++){
+    if(i >= playersIndex){
+      thisPlayerHolder = document.getElementById('player-' + (i + 2));
+      thisPlayerHolder.id = 'player-' + (i + 1);
+      thisPlayerHolder.setAttribute('players-index', i);
     }
   }
-  currentPlayerCount = newPlayerCount;
+  console.log(window.players);
 }
 // adding input to update player name
 function addNameInput(element){
+  currentName = element.innerHTML;
   nameHolder = element.parentNode;
   element.style.display = 'none';
   var nameInput = document.createElement('input');
   nameInput.classList.add('name-input');
+  nameInput.value = currentName;
   nameInput.addEventListener('keydown', function (e) {
     if (e.code === 'Enter') {
         updateName(nameInput);
@@ -185,7 +195,6 @@ function cricketMiss(element){
   element.innerHTML = "Miss";
   disablePlayerButtons(playerHolder);
 }
-
 function disablePlayerButtons(element){
   playerButtons = element.getElementsByTagName('button');
   for(i = 0; i < playerButtons.length; i++){

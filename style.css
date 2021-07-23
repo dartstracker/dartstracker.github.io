@@ -28,10 +28,12 @@ h1 {
   cursor: pointer;
 }
 h2 {
-  margin: 1em 0;
+  margin: .5em 0;
   font-size: 2.5rem;
   font-weight: normal;
-  text-align: center;
+  text-align: left;
+  float: left;
+  display: inline-block;
 }
 p {
   margin: 0;
@@ -85,11 +87,15 @@ label {
   font-weight: bold;
   color: white;
 }
-#cricket-start {
+#cricket-start, #new-cricket {
   display: flex;
-  justify-content: center;
+  justify-content:flex-end;
 }
 #cricket-start > * {
+  flex-grow: 0;
+  padding: 10px;
+}
+#new-cricket > * {
   flex-grow: 0;
   padding: 10px;
 }
@@ -103,6 +109,9 @@ label {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-around;
+}
+.x-button {
+  float: right;
 }
 .player {
   margin: 1rem;
@@ -179,13 +188,14 @@ label {
   margin: .5rem;
 }
 .name-input {
-  height: 4rem;
   margin: 0;
   width: 200px;
+  padding: 5px;
 }
 .name-button {
-  height: 4rem;
-  padding: 10px;
+  background-color: green;
+  color: white;
+  padding: 5px;
   margin: 0;
 }
 @media only screen and (max-width: 600px) {
