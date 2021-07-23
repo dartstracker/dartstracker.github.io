@@ -182,9 +182,8 @@ function cricketMiss(element){
     currentRoundArray.push("miss");
   }
   dartsCounter.innerHTML = 0;
-  roundCounter.innerHTML = currentRound + 1;
   element.innerHTML = "Miss";
-  console.log(players);
+  disablePlayerButtons(playerHolder);
 }
 
 function disablePlayerButtons(element){
