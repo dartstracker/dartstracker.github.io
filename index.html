@@ -28,18 +28,19 @@
   <div class="container">
     <div id="game-select" class="button-holder">
       <button class="green-button" onclick="showCricket();">Cricket</button>
-      <button class="grey-button" disabled>'01</button>
-      <button class="grey-button" disabled>Baseball</button>
-      <button class="grey-button" disabled>Golf</button>
+      <button class="green-button" disabled>'01</button>
+      <button class="green-button" disabled>Baseball</button>
+      <button class="green-button" disabled>Golf</button>
     </div>
     <div id="cricket" class="game-type" style="display:none">
       <h2>Cricket</h2>
       <div id="cricket-start">
         <button class="green-button" onclick="newCricket();">New Game</button>
-        <button class="grey-button" disabled>Load Game</button>
+        <button class="green-button" disabled>Load Game</button>
       </div>
       <div id="new-cricket" style="display:none">
         <button class="green-button" onclick="addCricketPlayer();">Add Player</button>
+        <button class="green-button" id="undo-button" onclick="undoButton();" disabled>Undo</button>
       </div>
     </div>
     <div id="o1" class="game-type" style="display:none">
@@ -99,9 +100,7 @@
             <input class="hitcounter" hitcounter="bull" readonly>
           </div>
           <div class="button-row">
-            <button class="undo-button" onclick="undoButton(this)" disabled><</button>
             <button class="done-button" onclick="cricketMiss(this)">Miss</button>
-            <span class="small-button"></span>
           </div>
         </div>
       </div>
