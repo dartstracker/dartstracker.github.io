@@ -196,11 +196,74 @@ function cricketHit(element, target, count){
       currentPlayer.hitcounts[target] = 3;
     }
   }
-  if(dartsLeft == 0){
+  let gameEnded = checkGameEnd();
+  if(dartsLeft == 0 && !gameEnded){
     disablePlayerButtons(playerHolder);
   }
 }
+function checkGameEnd(){
+  let gameEnded = false;
+  let maxPoints = 0;
+  for(let i = 0; i < window.players.length; i++){
+    let pointsPlayer = window.players[i];
+    if(pointsPlayer.points > maxPoints){
+      maxPoints = pointsPlayer.points;
+      winningPlayer = thisPlayer;
+    }
+  }
+  for(let i = 0; i < window.players.length; i++){
+    let thisPlayer = window.players[i];
+    let allClosed = true;
+    for(let l = 0; l < window.cricketTargetList.length; l++){
+      if(thisPlayer.hitcounts[cricketTargetList[l]] < 3){
+        allClosed = false;
+      }
+    }
+    if(allClosed && thisPlayer.points == maxPoints){
+      gameEnded = true;
+      playerDivs = document.getElementsByClassName('player');
+      for(let p = 0; p < playerDivs.length; p++){
+        if(playerDivs[p].id !='cricket-template'){
+          disablePlayerButtons(playerDivs[p], false);
+        }
+      }
+      blockerDiv = document.createElement('div');
+      blockerDiv.classList.add('blocker');
+      document.getElementsByTagName('body')[0].appendChild(blockerDiv);
+      gameEndedPopup = document.createElement('div');
+      gameEndedPopup.classList.add('game-end-screen');
+      centerDiv = document.createElement('div');
+      gameEndedPopup.appendChild(centerDiv);
+      winnerH2 = document.createElement('h2')
+      winnerH2.innerHTML = thisPlayer.name + " Wins!";
+      centerDiv.appendChild(winnerH2);
+      newGameButton = document.createElement('button');
+      newGameButton.classList.add('green-button');
+      newGameButton.innerHTML = 'New Game';
+      newGameButton.addEventListener("click", restartCricket);
+      centerDiv.appendChild(newGameButton);
+      statsButton = document.createElement('button');
+      statsButton.classList.add('green-button');
+      statsButton.innerHTML = 'View Stats';
+      statsButton.disabled = true;
+      centerDiv.appendChild(statsButton);
+      blockerDiv.appendChild(gameEndedPopup);
 
+    }
+  }
+  return gameEnded
+}
+function restartCricket(){
+  blockerDiv = document.getElementsByClassName('blocker')[0];
+  blockerDiv.parentNode.removeChild(blockerDiv);
+  for(let i = 0; i< window.players.length; i++){
+    let thisPlayer = window.players[i];
+    thisPlayer.hitcounts = window.playerData.hitcounts;
+    thisPlayer.points = 0;
+    thisPlayer.rounds = []
+    displayPlayerData(i);
+  }
+}
 function calculatePoints(playersIndex, target, newCount) {
   thisPlayer = window.players[playersIndex];
     otherTargetsOpen = true;
