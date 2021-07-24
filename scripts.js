@@ -456,7 +456,17 @@ function checkRoundEnd(){
       checkPlayerDiv = document.getElementById('player-' + (j + 1));
       if(currentPlayerRound == window.lowestRound){
         startCricketPlayerRound(j);
+        checkDisabledPlayers();
       }
+    }
+  }
+}
+function checkDisabledPlayers(){
+  let roundsEqual = checkPlayerRounds();
+  if(roundsEqual){
+    for(j = 0; j < window.players.length; j++){
+      let checkPlayerDiv = document.getElementById('player-' + (j + 1));
+      enablePlayerButtons(checkPlayerDiv)
     }
   }
 }
