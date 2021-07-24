@@ -150,7 +150,7 @@ label {
 .button-row > * {
   margin: 0 .25rem;
 }
-.small-button {
+.small-button, .undo-button {
   width: 3rem;
   height: 3rem;
   flex-grow: 0;
@@ -164,7 +164,7 @@ label {
   height: 4rem;
   flex-grow: 10;
 }
-.tracker {
+.hitcounter {
   text-align: center;
   font-family: "JoeHand", sans-serif;
   font-size: 2rem;

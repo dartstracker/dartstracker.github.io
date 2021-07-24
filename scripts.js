@@ -36,13 +36,10 @@ function newCricket() {
   cricketStartDiv.style.display = 'none';
   addCricketPlayer();
 }
-
+// variables to use later
 var currentPlayerCount = 0;
 var players = [];
 var playerData = {
-  name: '',
-  points: 0,
-  rounds: [[]],
   hitcounts:{
     20: 0,
     19: 0,
@@ -51,12 +48,16 @@ var playerData = {
     16: 0,
     15: 0,
     bull: 0
-  }
+  },
+  name: '',
+  points: 0,
+  rounds: [[]],
+  states: []
 }
 // add cricket player template to player holder
 function addCricketPlayer(){
-  var playerTemplate = document.getElementById('cricket-template');
-  var playerHolder = document.getElementById('player-holder');
+  playerTemplate = document.getElementById('cricket-template');
+  playerHolder = document.getElementById('player-holder');
   currentPlayerIndex = window.players.length;
   playerNumber = currentPlayerIndex + 1;
   newPlayerData = JSON.parse(JSON.stringify(playerData));
@@ -98,6 +99,7 @@ function addNameInput(element){
   var nameInput = document.createElement('input');
   nameInput.classList.add('name-input');
   nameInput.value = currentName;
+  nameInput.addEventListener('submit', function (e) {updateName(nameInput);});
   nameInput.addEventListener('keydown', function (e) {
     if (e.code === 'Enter') {
         updateName(nameInput);
@@ -109,6 +111,8 @@ function addNameInput(element){
   doneButton.setAttribute('onclick','updateName(this)');
   nameHolder.appendChild(nameInput);
   nameHolder.appendChild(doneButton);
+  nameInput.focus();
+  nameInput.select();
 }
 // updating name and removing input
 function updateName(element){
@@ -132,10 +136,11 @@ function cricketHit(element, target, count){
   rowHolder = element.parentNode;
   targetDisplay = rowHolder.getElementsByTagName('input')[0];
   playerHolder = rowHolder.parentNode.parentNode;
+  playersIndex = playerHolder.getAttribute('players-index');
+  addPlayerState(playersIndex);
   dartsCounter = playerHolder.getElementsByClassName('darts')[0];
   roundCounter = playerHolder.getElementsByClassName('round')[0];
   doneButton = playerHolder.getElementsByClassName('done-button')[0];
-  playersIndex = playerHolder.getAttribute('players-index');
   currentPlayer = window.players[playersIndex];
   currentRound = currentPlayer.rounds.length;
   if(currentRound == 0){
@@ -157,6 +162,7 @@ function cricketHit(element, target, count){
   dartsCounter.innerHTML = dartsLeft.toString();
   roundCounter.innerHTML = currentRound.toString();
   currentRoundArray.push(target.toString() + "_" + count.toString());
+  oldHitCounts = currentPlayer.hitcounts[target];
   currentPlayer.hitcounts[target] += count;
   targetHitCount = currentPlayer.hitcounts[target];
   if(targetHitCount == 1){
@@ -165,10 +171,112 @@ function cricketHit(element, target, count){
     targetDisplay.value = 'X';
   } else {
     targetDisplay.value = '0';
+    if(targetHitCount > 3){
+      if(oldHitCounts < 3){
+        newCount = count - (3 - oldHitCounts);
+      } else {
+        newCount = count;
+      }
+      calculatePoints(playersIndex, target, newCount);
+    }
   }
   if(dartsLeft == 0){
     disablePlayerButtons(playerHolder);
   }
+}
+
+function calculatePoints(playersIndex, target, newCount) {
+  console.log("points not implemented yet...");
+}
+// add state to player
+function addPlayerState(playersIndex){
+  thisPlayer = window.players[playersIndex];
+  newPlayerData = JSON.parse(JSON.stringify(thisPlayer));
+  newPlayerData.states = [];
+  thisPlayer.states.push(newPlayerData);
+  thisPlayerDiv = document.getElementById('player-' + (parseInt(playersIndex) + 1));
+  thisUndoButton = thisPlayerDiv.getElementsByClassName('undo-button')[0];
+  thisUndoButton.disabled = false;
+}
+function undoButton(element){
+  rowHolder = element.parentNode;
+  playerHolder = rowHolder.parentNode.parentNode;
+  playersIndex = playerHolder.getAttribute('players-index');
+  playerStatesLength = window.players[playersIndex].states.length;
+  if(playerStatesLength > 0){
+    loadPreviousState(playersIndex);
+    if(playerStatesLength == 1){
+      element.disabled = true;
+    }
+  } else {
+    element.disabled = true;
+  }
+}
+function loadPreviousState(playersIndex){
+  thisPlayer = window.players[playersIndex];
+  playerStatesLength = thisPlayer.states.length;
+  previousState = thisPlayer.states[playerStatesLength-1];
+  thisPlayer.hitcounts = previousState.hitcounts;
+  thisPlayer.name = previousState.name;
+  thisPlayer.points = previousState.points;
+  thisPlayer.rounds = previousState.rounds;
+  thisPlayer.states.pop();
+  displayPlayerData(playersIndex);
+}
+function displayPlayerData(playersIndex){
+  thisPlayer = window.players[playersIndex];
+  if(!thisPlayer){
+    console.error("player " + playersIndex + " does not exits...");
+  }
+  thisPlayerDiv = document.getElementById('player-' + (parseInt(playersIndex) + 1));
+  if(!thisPlayerDiv){
+    thisPlayerDiv = createPlayerDivFromIndex(playersIndex);
+  }
+  nameLabel = thisPlayerDiv.getElementsByTagName('label')[0];
+  nameLabel = thisPlayer.name;
+  currentRound = thisPlayer.rounds.length;
+  if(currentRound == 0){
+    thisPlayer.rounds.push([]);
+    currentRound = thisPlayer.rounds.length;
+  }
+  roundCounter = thisPlayerDiv.getElementsByClassName('round')[0];
+  roundCounter.innerHTML = currentRound;
+  currentRoundIndex = currentRound - 1;
+  currentRoundArray = thisPlayer.rounds[currentRoundIndex];
+  currentDart = currentRoundArray.length;
+  dartsLeft = 3 - (currentDart);
+  dartsCounter = thisPlayerDiv.getElementsByClassName('darts')[0];
+  dartsCounter.innerHTML = dartsLeft;
+  enablePlayerButtons(thisPlayerDiv);
+  hitCounters = thisPlayerDiv.getElementsByClassName('hitcounter');
+  for(i = 0; i < hitCounters.length; i++){
+    thisHitCounter = hitCounters[i];
+    thisTarget = thisHitCounter.getAttribute("hitcounter");
+    targetHitCount = thisPlayer.hitcounts[thisTarget];
+    if(targetHitCount == 0){
+      thisHitCounter.value = '';
+    } else if(targetHitCount == 1){
+      thisHitCounter.value = '\\';
+    } else if (targetHitCount == 2){
+      thisHitCounter.value = 'X';
+    } else {
+      thisHitCounter.value = '0';
+    }
+  }
+}
+function createPlayerDivFromIndex(playersIndex){
+  thisPlayer = window.players[playersIndex];
+  playerTemplate = document.getElementById('cricket-template');
+  playerHolder = document.getElementById('player-holder');
+  playerNumber = playersIndex + 1;
+  newPlayerDiv = playerTemplate.cloneNode(true);
+  newPlayerDiv.id = 'player-' + playerNumber;
+  newPlayerDiv.setAttribute('players-index', playersIndex);
+  newPlayerDiv.style.display = 'block';
+  nameLabel = newPlayerDiv.getElementsByTagName('label')[0];
+  nameLabel.innerHTML = thisPlayer.name;
+  playerHolder.appendChild(newPlayerDiv);
+  return newPlayerDiv;
 }
 // updating display for a miss in cricket
 function cricketMiss(element){
@@ -178,6 +286,7 @@ function cricketMiss(element){
   dartsCounter = playerHolder.getElementsByClassName('darts')[0];
   roundCounter = playerHolder.getElementsByClassName('round')[0];
   playersIndex = playerHolder.getAttribute('players-index');
+  addPlayerState(playersIndex);
   currentPlayer = window.players[playersIndex];
   currentRound = currentPlayer.rounds.length;
   if(currentRound == 0){
@@ -195,26 +304,64 @@ function cricketMiss(element){
   element.innerHTML = "Miss";
   disablePlayerButtons(playerHolder);
 }
-function disablePlayerButtons(element){
+// disable buttons when no darts are left
+function disablePlayerButtons(element, checkEnd = true){
   playerButtons = element.getElementsByTagName('button');
   for(i = 0; i < playerButtons.length; i++){
     thisButton = playerButtons[i];
+    if(!thisButton.classList.contains('undo-button') && !thisButton.classList.contains('x-button'))
     thisButton.disabled = true;
   }
-  checkRoundEnd();
+  if(checkEnd){
+    checkRoundEnd();
+  }
 }
-
+// check if round is over
 function checkRoundEnd(){
-  roundComplete = true;
+  // check if everyone is on the same round
+  roundsEqual = true;
+  lowestRound = window.players[0].rounds.length;
   for(i = 0; i < window.players.length; i++){
-    thisPlayer = window.players[i];
-    currentRound = thisPlayer.rounds.length - 1;
-    if(thisPlayer.rounds[currentRound].length < 3){
-      roundComplete = false;
+    currentPlayerRound = window.players[i].rounds.length;
+    if(currentPlayerRound < lowestRound){
+      roundsEqual = false;
+      lowestRound = currentPlayerRound;
     }
   }
-  if(roundComplete){
-    startNewCricketRound();
+  if(roundsEqual){
+    //TODO: this is broken, need to fix it
+
+    // everyone is on the same round, check if round complete
+    roundComplete = true;
+    for(i = 0; i < window.players.length; i++){
+      thisPlayer = window.players[i];
+      currentRound = thisPlayer.rounds.length - 1;
+      if(thisPlayer.rounds[currentRound].length < 3){
+        roundComplete = false;
+      }
+    }
+    if(roundComplete){
+      startNewCricketRound();
+    }
+  } else {
+    // give players time to catch up
+    for(j = 0; j < window.players.length; j++){
+      currentPlayerRound = window.players[j].rounds.length;
+      thisPlayerDiv = document.getElementById('player-' + (j + 1));
+      if(currentPlayerRound > lowestRound){
+        disablePlayerButtons(thisPlayerDiv, false);
+      } else {
+        enablePlayerButtons(thisPlayerDiv);
+      }
+    }
+  }
+}
+// enable buttons for players that need to catch up
+function enablePlayerButtons(element){
+  playerButtons = element.getElementsByTagName('button');
+  for(i = 0; i < playerButtons.length; i++){
+    thisButton = playerButtons[i];
+    thisButton.disabled = false;
   }
 }
 
