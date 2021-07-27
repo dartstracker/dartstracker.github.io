@@ -2,9 +2,6 @@
   font-family: JoeHand;
   src: url("/fonts/JoeHand-Regular.woff");
 }
-* {
-  box-sizing: border-box
-}
 body {
   font-family: "JoeHand", sans-serif;
   color: white;
@@ -46,10 +43,11 @@ button{
   cursor: pointer;
   display: table-cell;
   vertical-align: middle;
+  padding: 0;
 }
 input {
   font-size: 2rem;
-  padding: 10px;
+  padding: 5px;
   border-radius: 10px;
 }
 label {
@@ -94,6 +92,11 @@ label {
   cursor: not-allowed;
   color:DarkSlateGrey;
 }
+.red-button {
+  background-color: red;
+  font-weight: bold;
+  color: white;
+}
 #cricket-start, #new-cricket {
   display: flex;
   justify-content:flex-end;
@@ -118,13 +121,17 @@ label {
   justify-content: space-around;
 }
 .x-button {
+  width: 2rem;
+  height: 2rem;
   float: right;
   font-size: 1rem;
-  margin-left: -1.5rem;
+  margin-left: -2rem;
+  background-color: white;
+  color:red;
 }
 .player {
   margin: 1rem;
-  min-width: 200px;
+  width: 230px;
 }
 .player > p {
   margin: .5rem;
@@ -215,7 +222,7 @@ label {
   flex-grow: 0;
 }
 .blocker {
-  background-color: rgba(0, 0, 0, 0.2);
+  background-color: rgba(0, 0, 0, 0.4);
   position: fixed;
   top:0;
   right:0;
@@ -225,18 +232,23 @@ label {
   align-items: center;
   justify-content: center;
 }
-.game-end-screen {
+.pop-up {
   background-color: #383838;
-  width: 600px;
-  height: 600px;
+  min-width: 600px;
+  min-height: 600px;
   width: 50%;
   height: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-.game-end-screen > div {
+.pop-up > div {
   display: grid;
+
+}
+.pop-up > div > button {
+  margin: 0.25rem;
+  padding: .5rem;
 }
 @media only screen and (max-width: 600px) {
   .button-holder {

@@ -82,10 +82,42 @@ function addCricketPlayer(){
   checkRoundEnd();
   checkAllTargets();
 }
+function removePlayerConfirm(element){
+  let playerHolder = element.parentNode;
+  let playersIndex = playerHolder.getAttribute('players-index');
+  let thisPlayer = window.players[playersIndex];
+  blockerDiv = document.createElement('div');
+  blockerDiv.classList.add('blocker');
+  document.getElementsByTagName('body')[0].appendChild(blockerDiv);
+  confirmPopup = document.createElement('div');
+  confirmPopup.classList.add('pop-up');
+  centerDiv = document.createElement('div');
+  confirmPopup.appendChild(centerDiv);
+  popupH2 = document.createElement('h2')
+  popupH2.innerHTML = 'Remove ' + thisPlayer.name + '?';
+  centerDiv.appendChild(popupH2);
+  okButton = document.createElement('button');
+  okButton.classList.add('green-button');
+  okButton.innerHTML = 'Yup';
+  okButton.setAttribute("onclick", "removePlayer(" + playersIndex + ")");
+  centerDiv.appendChild(okButton);
+  cancelButton = document.createElement('button');
+  cancelButton.classList.add('red-button');
+  cancelButton.innerHTML = 'Oops';
+  cancelButton.addEventListener("click", cancelRemovePlayer);
+  centerDiv.appendChild(cancelButton);
+  blockerDiv.appendChild(confirmPopup);
+}
+
+function cancelRemovePlayer(){
+  blockerDiv = document.getElementsByClassName('blocker')[0];
+  blockerDiv.parentNode.removeChild(blockerDiv);
+}
 // remove player from player template and players.
-function removePlayer(element){
-  playerHolder = element.parentNode;
-  playersIndex = playerHolder.getAttribute('players-index');
+function removePlayer(playersIndex){
+  blockerDiv = document.getElementsByClassName('blocker')[0];
+  blockerDiv.parentNode.removeChild(blockerDiv);
+  let playerHolder = document.getElementById('player-' + (parseInt(playersIndex) + 1));
   if(playersIndex == 0){
     window.players.shift();
   } else if(playersIndex == (window.players.length -1)){
@@ -231,7 +263,7 @@ function checkGameEnd(){
       blockerDiv.classList.add('blocker');
       document.getElementsByTagName('body')[0].appendChild(blockerDiv);
       gameEndedPopup = document.createElement('div');
-      gameEndedPopup.classList.add('game-end-screen');
+      gameEndedPopup.classList.add('pop-up');
       centerDiv = document.createElement('div');
       gameEndedPopup.appendChild(centerDiv);
       winnerH2 = document.createElement('h2')
