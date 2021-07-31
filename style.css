@@ -29,8 +29,6 @@ h2 {
   font-size: 2.5rem;
   font-weight: normal;
   text-align: left;
-  float: left;
-  display: inline-block;
 }
 p {
   margin: 0;
@@ -55,14 +53,12 @@ label {
   margin: 10px;
 }
 table {
-  width: 100%;
   text-align: center;
+  border-spacing: 10px;
+  border-collapse: separate;
 }
 tr {
   width: 100%;
-}
-th {
-  padding: .25rem 1rem;
 }
 
 .container {
@@ -134,7 +130,8 @@ th {
 .x-button {
   position: absolute;
   top: 0;
-  right:0;
+  left: 0;
+  margin-right: -2rem;
   width: 2rem;
   height: 2rem;
   font-size: 1rem;
@@ -225,6 +222,7 @@ th {
   padding: 5px;
   max-width: 200px;
   flex-grow: 0;
+  z-index: 1;
 }
 .name-button {
   background-color: green;
@@ -249,18 +247,13 @@ th {
 .pop-up {
   position: relative;
   background-color: #383838;
-  min-width: 600px;
-  min-height: 600px;
-  width: 50%;
-  height: 50%;
-  display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px;
+  overflow: auto;
 }
 .pop-up > div {
   display: grid;
-  overflow: auto;
+  margin: 2rem;
 }
 .pop-up > div > button {
   margin: 0.25rem;

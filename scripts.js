@@ -107,14 +107,17 @@ function removePlayerConfirm(element){
   cancelButton = document.createElement('button');
   cancelButton.classList.add('red-button');
   cancelButton.innerHTML = 'Oops';
-  cancelButton.addEventListener("click", removeBlocker);
+  cancelButton.addEventListener("click", removeBlockers);
   centerDiv.appendChild(cancelButton);
   blockerDiv.appendChild(confirmPopup);
 }
 
-function removeBlocker(){
-  blockerDiv = document.getElementsByClassName('blocker')[0];
-  blockerDiv.parentNode.removeChild(blockerDiv);
+function removeBlockers(){
+  blockerDivs = document.getElementsByClassName('blocker');
+  for(bd = 0; bd < blockerDivs.length; bd++){
+    thisBlocker = blockerDivs[bd]
+    thisBlocker.parentNode.removeChild(thisBlocker);
+  }
 }
 // remove player from player template and players.
 function removePlayer(playersIndex){
@@ -280,7 +283,7 @@ function checkGameEnd(){
       statsButton = document.createElement('button');
       statsButton.classList.add('green-button');
       statsButton.innerHTML = 'View Stats';
-      statsButton.disabled = true;
+      statsButton.addEventListener('click', showAllStats);
       centerDiv.appendChild(statsButton);
       blockerDiv.appendChild(gameEndedPopup);
     }
@@ -640,26 +643,51 @@ function startCricketPlayerRound(playersIndex){
   }
 }
 function showPlayerStats(element){
+  centerDiv = createStatsPopup();
   let playerHolder = element.parentNode;
   let playersIndex = playerHolder.getAttribute('players-index');
   let thisPlayer = window.players[playersIndex];
+  addPlayerStatsTable(thisPlayer, centerDiv);
+}
+
+function showAllStats(){
+  centerDiv = createStatsPopup();
+  for(p = 0; p < window.players.length; p++){
+    let thisPlayer = window.players[p];
+    addPlayerStatsTable(thisPlayer, centerDiv);
+  }
+}
+
+function createStatsPopup(){
   let blockerDiv = document.createElement('div');
   blockerDiv.classList.add('blocker');
+  blockerDiv.id = "stats";
   document.getElementsByTagName('body')[0].appendChild(blockerDiv);
   statsPopup = document.createElement('div');
   statsPopup.classList.add('pop-up');
   xButton = document.createElement('button');
+  blockerDiv.appendChild(statsPopup);
   xButton.classList.add('x-button');
   xButton.innerHTML = 'X';
-  xButton.addEventListener('click', removeBlocker);
+  xButton.addEventListener('click', removeStats);
   statsPopup.appendChild(xButton);
   centerDiv = document.createElement('div');
   statsPopup.appendChild(centerDiv);
+  return centerDiv;
+}
+
+function removeStats(){
+  statsElement = document.getElementById('stats');
+  statsElement.parentNode.removeChild(statsElement);
+}
+
+function addPlayerStatsTable(thisPlayer, centerDiv){
   popupH2 = document.createElement('h2')
-  popupH2.innerHTML = thisPlayer.name + ' Stats';
+  popupH2.innerHTML = thisPlayer.name + "'s Stats";
   centerDiv.appendChild(popupH2);
   averageList = [];
   totalHits = 0
+  rolling3DA = 0;
   let roundsTable = document.createElement('table');
   headerRow = document.createElement("tr");
   roundsTable.appendChild(headerRow);
@@ -688,47 +716,54 @@ function showPlayerStats(element){
     thisRound = thisPlayer.rounds[r];
     roundCount = r + 1;
     thisRoundHits = 0;
-    let roundRow = document.createElement('tr');
-    roundsTable.appendChild(roundRow);
-    roundLabelCell = document.createElement('td');
-    roundLabelCell.innerHTML = roundCount;
-    roundRow.appendChild(roundLabelCell);
-    for(let d = 0; d < thisRound.length; d++){
-      thisDart = thisRound[d];
-      if(thisDart.includes("_")){
-        dartElements = thisDart.split("_");
-        targetText = dartElements[0];
-        targetCount = parseInt(dartElements[1]);
-        thisRoundHits += targetCount;
-        totalHits += targetCount;
-        cellText = targetText + "(" + targetCount +")";
-      } else {
-        cellText = thisDart;
-      }
-      thisDartCell = document.createElement('td');
-      thisDartCell.innerHTML = cellText;
-      roundRow.appendChild(thisDartCell);
-    }
-    if(thisRound.length < 3){
-      dartsLeft = 3 - thisRound.length;
-      for(let dl = 0; dl < dartsLeft; dl++){
+    if(thisRound.length > 0){
+      let roundRow = document.createElement('tr');
+      roundsTable.appendChild(roundRow);
+      roundLabelCell = document.createElement('td');
+      roundLabelCell.innerHTML = roundCount;
+      roundRow.appendChild(roundLabelCell);
+      for(let d = 0; d < thisRound.length; d++){
+        thisDart = thisRound[d];
+        if(thisDart.includes("_")){
+          dartElements = thisDart.split("_");
+          targetText = dartElements[0];
+          targetCount = parseInt(dartElements[1]);
+          thisRoundHits += targetCount;
+          totalHits += targetCount;
+          cellText = targetText + "(" + targetCount +")";
+        } else {
+          cellText = thisDart;
+        }
         thisDartCell = document.createElement('td');
-        thisDartCell.innerHTML = "N/A";
+        thisDartCell.innerHTML = cellText;
         roundRow.appendChild(thisDartCell);
       }
+      if(thisRound.length < 3){
+        dartsLeft = 3 - thisRound.length;
+        for(let dl = 0; dl < dartsLeft; dl++){
+          thisDartCell = document.createElement('td');
+          thisDartCell.innerHTML = "N/A";
+          roundRow.appendChild(thisDartCell);
+        }
+      }
+      roundHitsCell = document.createElement('td');
+      roundHitsCell.innerHTML = thisRoundHits;
+      roundRow.appendChild(roundHitsCell);
+      thisRound3DA = thisRoundHits / 3;
+      round3DACell = document.createElement('td');
+      round3DACell.innerHTML = thisRound3DA.toFixed(2);
+      roundRow.appendChild(round3DACell);
+      rolling3DA = totalHits / (3 * roundCount);
+      rolling3DACell = document.createElement('td');
+      rolling3DACell.innerHTML = rolling3DA.toFixed(2);
+      roundRow.appendChild(rolling3DACell);
     }
-    roundHitsCell = document.createElement('td');
-    roundHitsCell.innerHTML = thisRoundHits;
-    roundRow.appendChild(roundHitsCell);
-    thisRound3DA = thisRoundHits / 3;
-    round3DACell = document.createElement('td');
-    round3DACell.innerHTML = thisRound3DA.toFixed(2);
-    roundRow.appendChild(round3DACell);
-    rolling3DA = totalHits / (3 * roundCount);
-    rolling3DACell = document.createElement('td');
-    rolling3DACell.innerHTML = rolling3DA.toFixed(2);
-    roundRow.appendChild(rolling3DACell);
   }
+  let totalsRow = document.createElement('tr');
+  roundsTable.appendChild(totalsRow);
+  totalsCell =  document.createElement('th');
+  totalsCell.colSpan = '7';
+  totalsCell.innerHTML = 'Total Hits: ' + totalHits + ' | 3 Dart Average: ' + rolling3DA.toFixed(2);
+  totalsRow.appendChild(totalsCell);
   centerDiv.appendChild(roundsTable);
-  blockerDiv.appendChild(statsPopup);
 }
