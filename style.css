@@ -54,6 +54,17 @@ label {
   font-size: 2rem;
   margin: 10px;
 }
+table {
+  width: 100%;
+  text-align: center;
+}
+tr {
+  width: 100%;
+}
+th {
+  padding: .25rem 1rem;
+}
+
 .container {
   background-color: #484848;
   max-width: 1024px;
@@ -121,15 +132,17 @@ label {
   justify-content: space-around;
 }
 .x-button {
+  position: absolute;
+  top: 0;
+  right:0;
   width: 2rem;
   height: 2rem;
-  float: right;
   font-size: 1rem;
-  margin-left: -2rem;
   background-color: white;
   color:red;
 }
 .player {
+  position: relative;
   margin: 1rem;
   width: 230px;
 }
@@ -138,6 +151,7 @@ label {
   display: flex;
   justify-content: space-around;
   flex-wrap: wrap;
+  cursor: pointer;
 }
 .player > p > span {
   display: inline-block;
@@ -233,6 +247,7 @@ label {
   justify-content: center;
 }
 .pop-up {
+  position: relative;
   background-color: #383838;
   min-width: 600px;
   min-height: 600px;
@@ -241,15 +256,26 @@ label {
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 20px;
 }
 .pop-up > div {
   display: grid;
-
+  overflow: auto;
 }
 .pop-up > div > button {
   margin: 0.25rem;
   padding: .5rem;
 }
+.pop-up > div > h2 {
+  text-align: center;
+}
+.points-holder {
+  width: 100% !important;
+  font-size: 1.5em;
+  line-height: 1.2;
+  margin: .25rem 0 0 0;
+}
+
 @media only screen and (max-width: 600px) {
   .button-holder {
     display:block;

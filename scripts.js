@@ -64,22 +64,25 @@ var states = [];
 var lowestRound = 0;
 cricketTargetList = ['20', '19', '18', '17', '16', '15', 'bull'];
 // add cricket player template to player holder
-function addCricketPlayer(){
+function addCricketPlayer(name = ""){
   playerTemplate = document.getElementById('cricket-template');
   playerHolder = document.getElementById('player-holder');
   currentPlayerIndex = window.players.length;
   playerNumber = currentPlayerIndex + 1;
   newPlayerData = JSON.parse(JSON.stringify(playerData));
-  newPlayerData.name = 'Player ' + playerNumber;
+  if(name == ""){
+    newPlayerData.name = 'Player ' + playerNumber;
+  } else {
+    newPlayerData.name = name;
+  }
   window.players.push(newPlayerData);
   newPlayerDiv = playerTemplate.cloneNode(true);
   newPlayerDiv.id = 'player-' + playerNumber;
   newPlayerDiv.setAttribute('players-index', currentPlayerIndex);
   newPlayerDiv.style.display = 'block';
   nameLabel = newPlayerDiv.getElementsByTagName('label')[0];
-  nameLabel.innerHTML = 'Player ' + playerNumber;
+  nameLabel.innerHTML = newPlayerData.name;
   playerHolder.appendChild(newPlayerDiv);
-  checkRoundEnd();
   checkAllTargets();
 }
 function removePlayerConfirm(element){
@@ -104,12 +107,12 @@ function removePlayerConfirm(element){
   cancelButton = document.createElement('button');
   cancelButton.classList.add('red-button');
   cancelButton.innerHTML = 'Oops';
-  cancelButton.addEventListener("click", cancelRemovePlayer);
+  cancelButton.addEventListener("click", removeBlocker);
   centerDiv.appendChild(cancelButton);
   blockerDiv.appendChild(confirmPopup);
 }
 
-function cancelRemovePlayer(){
+function removeBlocker(){
   blockerDiv = document.getElementsByClassName('blocker')[0];
   blockerDiv.parentNode.removeChild(blockerDiv);
 }
@@ -280,7 +283,6 @@ function checkGameEnd(){
       statsButton.disabled = true;
       centerDiv.appendChild(statsButton);
       blockerDiv.appendChild(gameEndedPopup);
-
     }
   }
   return gameEnded
@@ -288,13 +290,19 @@ function checkGameEnd(){
 function restartCricket(){
   blockerDiv = document.getElementsByClassName('blocker')[0];
   blockerDiv.parentNode.removeChild(blockerDiv);
-  for(let i = 0; i< window.players.length; i++){
-    let thisPlayer = window.players[i];
-    thisPlayer.hitcounts = window.playerData.hitcounts;
-    thisPlayer.points = 0;
-    thisPlayer.rounds = []
-    displayPlayerData(i);
+  playerHolder = document.getElementById('player-holder');
+  playerHolder.innerHTML = '';
+  window.states = [];
+  document.getElementById('undo-button').disabled = true;
+  let playerNames = [];
+  while(window.players.length>0){
+    playerNames.push(window.players[0].name);
+    window.players.shift();
   }
+  for (let i = 0; i < playerNames.length; i++){
+    addCricketPlayer(playerNames[i]);
+  }
+  console.log(window.players);
 }
 function calculatePoints(playersIndex, target, newCount) {
   thisPlayer = window.players[playersIndex];
@@ -366,9 +374,12 @@ function disableTargetButtons(target){
     thisTarget = thisHitCounter.getAttribute('hitcounter');
     if(thisTarget == target){
       rowHolder = thisHitCounter.parentNode;
-      targetButtons = rowHolder.getElementsByTagName('button');
-      for(b = 0; b < targetButtons.length; b++){
-        targetButtons[b].disabled = true;
+      let targetPlayerDiv = rowHolder.parentNode.parentNode;
+      if(!targetPlayerDiv.id.includes("template")){
+        targetButtons = rowHolder.getElementsByTagName('button');
+        for(b = 0; b < targetButtons.length; b++){
+          targetButtons[b].disabled = true;
+        }
       }
     }
   }
@@ -627,4 +638,97 @@ function startCricketPlayerRound(playersIndex){
     let doneButton = roundPlayerDiv.getElementsByClassName('done-button')[0];
     doneButton.innerHTML = 'Miss';
   }
+}
+function showPlayerStats(element){
+  let playerHolder = element.parentNode;
+  let playersIndex = playerHolder.getAttribute('players-index');
+  let thisPlayer = window.players[playersIndex];
+  let blockerDiv = document.createElement('div');
+  blockerDiv.classList.add('blocker');
+  document.getElementsByTagName('body')[0].appendChild(blockerDiv);
+  statsPopup = document.createElement('div');
+  statsPopup.classList.add('pop-up');
+  xButton = document.createElement('button');
+  xButton.classList.add('x-button');
+  xButton.innerHTML = 'X';
+  xButton.addEventListener('click', removeBlocker);
+  statsPopup.appendChild(xButton);
+  centerDiv = document.createElement('div');
+  statsPopup.appendChild(centerDiv);
+  popupH2 = document.createElement('h2')
+  popupH2.innerHTML = thisPlayer.name + ' Stats';
+  centerDiv.appendChild(popupH2);
+  averageList = [];
+  totalHits = 0
+  let roundsTable = document.createElement('table');
+  headerRow = document.createElement("tr");
+  roundsTable.appendChild(headerRow);
+  roundHeaderCell = document.createElement('th');
+  roundHeaderCell.innerHTML = 'Round';
+  headerRow.appendChild(roundHeaderCell);
+  dart1HeaderCell =  document.createElement('th');
+  dart1HeaderCell.innerHTML = 'Dart&#160;1';
+  headerRow.appendChild(dart1HeaderCell);
+  dart2HeaderCell =  document.createElement('th');
+  dart2HeaderCell.innerHTML = 'Dart&#160;2';
+  headerRow.appendChild(dart2HeaderCell);
+  dart3HeaderCell =  document.createElement('th');
+  dart3HeaderCell.innerHTML = 'Dart&#160;3';
+  headerRow.appendChild(dart3HeaderCell);
+  hitsHeaderCell =  document.createElement('th');
+  hitsHeaderCell.innerHTML = 'Hits';
+  headerRow.appendChild(hitsHeaderCell);
+  averageHeaderCell =  document.createElement('th');
+  averageHeaderCell.innerHTML = 'Round&#160;Average';
+  headerRow.appendChild(averageHeaderCell);
+  rollingHeaderCell =  document.createElement('th');
+  rollingHeaderCell.innerHTML = 'Rolling&#160;Average';
+  headerRow.appendChild(rollingHeaderCell);
+  for(let r = 0; r < thisPlayer.rounds.length; r++){
+    thisRound = thisPlayer.rounds[r];
+    roundCount = r + 1;
+    thisRoundHits = 0;
+    let roundRow = document.createElement('tr');
+    roundsTable.appendChild(roundRow);
+    roundLabelCell = document.createElement('td');
+    roundLabelCell.innerHTML = roundCount;
+    roundRow.appendChild(roundLabelCell);
+    for(let d = 0; d < thisRound.length; d++){
+      thisDart = thisRound[d];
+      if(thisDart.includes("_")){
+        dartElements = thisDart.split("_");
+        targetText = dartElements[0];
+        targetCount = parseInt(dartElements[1]);
+        thisRoundHits += targetCount;
+        totalHits += targetCount;
+        cellText = targetText + "(" + targetCount +")";
+      } else {
+        cellText = thisDart;
+      }
+      thisDartCell = document.createElement('td');
+      thisDartCell.innerHTML = cellText;
+      roundRow.appendChild(thisDartCell);
+    }
+    if(thisRound.length < 3){
+      dartsLeft = 3 - thisRound.length;
+      for(let dl = 0; dl < dartsLeft; dl++){
+        thisDartCell = document.createElement('td');
+        thisDartCell.innerHTML = "N/A";
+        roundRow.appendChild(thisDartCell);
+      }
+    }
+    roundHitsCell = document.createElement('td');
+    roundHitsCell.innerHTML = thisRoundHits;
+    roundRow.appendChild(roundHitsCell);
+    thisRound3DA = thisRoundHits / 3;
+    round3DACell = document.createElement('td');
+    round3DACell.innerHTML = thisRound3DA.toFixed(2);
+    roundRow.appendChild(round3DACell);
+    rolling3DA = totalHits / (3 * roundCount);
+    rolling3DACell = document.createElement('td');
+    rolling3DACell.innerHTML = rolling3DA.toFixed(2);
+    roundRow.appendChild(rolling3DACell);
+  }
+  centerDiv.appendChild(roundsTable);
+  blockerDiv.appendChild(statsPopup);
 }
