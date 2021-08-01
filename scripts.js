@@ -707,10 +707,10 @@ function addPlayerStatsTable(thisPlayer, centerDiv){
   hitsHeaderCell.innerHTML = 'Hits';
   headerRow.appendChild(hitsHeaderCell);
   averageHeaderCell =  document.createElement('th');
-  averageHeaderCell.innerHTML = 'Round&#160;Average';
+  averageHeaderCell.innerHTML = 'Round Average';
   headerRow.appendChild(averageHeaderCell);
   rollingHeaderCell =  document.createElement('th');
-  rollingHeaderCell.innerHTML = 'Rolling&#160;Average';
+  rollingHeaderCell.innerHTML = 'Rolling Average';
   headerRow.appendChild(rollingHeaderCell);
   for(let r = 0; r < thisPlayer.rounds.length; r++){
     thisRound = thisPlayer.rounds[r];
