@@ -5,10 +5,63 @@ function eventWindowLoaded(){
 function checkHash(){
   var hash = window.location.hash.substr(1);
   if (hash != ''){
-    //Do something with the hash here
+    connectSocket();
+    joinGame(hash);
   } else {
     hideAll();
   }
+}
+function connectSocket(){
+  window.socket = io('http://localhost:8000');
+  socket.on('error', function(e) {
+    console.log("Error: " + JSON.stringify(e));
+  });
+}
+function joinGame(gameId){
+  console.log('Attempting to join game ' + gameId)
+  var joinResponse = socket.emit('join game', gameId);
+  socket.on('player joined', function(playerId) {
+    console.log("New player " + playerId + " joined!");
+  });
+  socket.on('player left', function(playerId) {
+    console.log("Player " + playerId + " left!");
+  });
+  socket.on('game joined', function(gameObject) {
+    console.log("Successfully joined game " + gameObject._id);
+    window.gameObject = gameObject;
+    if(gameObject.gameType == "cricket"){
+      joinCricket();
+    }
+  });
+  socket.on('game updated', function(gameObject) {
+    console.log("Loading data from server...");
+    window.gameObject = gameObject;
+    updateFromServer();
+  });
+
+}
+function updateFromServer(){
+  if("states" in window.gameObject){
+    if(window.gameObject.states.length > 0){
+      let undoButton = document.getElementById('undo-button');
+      undoButton.disabled = false;
+    }
+  }
+  if("players" in window.gameObject){
+    for(let p = 0; p < window.gameObject.players.length; p++){
+      displayPlayerData(p);
+    }
+  }
+}
+
+function createNewGameDoc(gameType){
+  var newGameResponse = socket.emit('new game', gameType);
+  socket.on('game created', function(gameObject){
+    gameId = gameObject.insertedId;
+    console.log("New game " + gameId + " created!");
+    history.pushState(null, null, '#' + gameId);
+    joinGame(gameId);
+  });
 }
 function hideAll(){
   var gametypes = document.getElementsByClassName('game-type');
@@ -19,7 +72,7 @@ function hideAll(){
   gameselect.style.display = '';
   playerHolder = document.getElementById('player-holder');
   playerHolder.innerHTML = '';
-  window.players = [];
+  window.gameObject.players = [];
 }
 
 function hideSelect(){
@@ -37,15 +90,26 @@ function showCricket(){
 }
 
 function newCricket() {
+  connectSocket();
+  createNewGameDoc("cricket");
+}
+
+function joinCricket() {
+  hideSelect();
+  var cricketdiv = document.getElementById('cricket').style.display = '';
   var newCricketDiv = document.getElementById('new-cricket');
   newCricketDiv.style.display = 'flex';
   var cricketStartDiv = document.getElementById('cricket-start');
   cricketStartDiv.style.display = 'none';
-  addCricketPlayer();
+  if("players" in window.gameObject){
+    updateFromServer();
+  } else {
+    addCricketPlayer();
+  }
 }
+
 // variables to use later
 var currentPlayerCount = 0;
-var players = [];
 var playerData = {
   hitcounts:{
     20: 0,
@@ -60,14 +124,13 @@ var playerData = {
   points: 0,
   rounds: [[]]
 }
-var states = [];
 var lowestRound = 0;
 cricketTargetList = ['20', '19', '18', '17', '16', '15', 'bull'];
 // add cricket player template to player holder
 function addCricketPlayer(name = ""){
   playerTemplate = document.getElementById('cricket-template');
   playerHolder = document.getElementById('player-holder');
-  currentPlayerIndex = window.players.length;
+  currentPlayerIndex = window.gameObject.players.length;
   playerNumber = currentPlayerIndex + 1;
   newPlayerData = JSON.parse(JSON.stringify(playerData));
   if(name == ""){
@@ -75,7 +138,7 @@ function addCricketPlayer(name = ""){
   } else {
     newPlayerData.name = name;
   }
-  window.players.push(newPlayerData);
+  window.gameObject.players.push(newPlayerData);
   newPlayerDiv = playerTemplate.cloneNode(true);
   newPlayerDiv.id = 'player-' + playerNumber;
   newPlayerDiv.setAttribute('players-index', currentPlayerIndex);
@@ -84,11 +147,12 @@ function addCricketPlayer(name = ""){
   nameLabel.innerHTML = newPlayerData.name;
   playerHolder.appendChild(newPlayerDiv);
   checkAllTargets();
+  updateServer();
 }
 function removePlayerConfirm(element){
   let playerHolder = element.parentNode;
   let playersIndex = playerHolder.getAttribute('players-index');
-  let thisPlayer = window.players[playersIndex];
+  let thisPlayer = window.gameObject.players[playersIndex];
   blockerDiv = document.createElement('div');
   blockerDiv.classList.add('blocker');
   document.getElementsByTagName('body')[0].appendChild(blockerDiv);
@@ -125,20 +189,21 @@ function removePlayer(playersIndex){
   blockerDiv.parentNode.removeChild(blockerDiv);
   let playerHolder = document.getElementById('player-' + (parseInt(playersIndex) + 1));
   if(playersIndex == 0){
-    window.players.shift();
-  } else if(playersIndex == (window.players.length -1)){
-    window.players.pop();
+    window.gameObject.players.shift();
+  } else if(playersIndex == (window.gameObject.players.length -1)){
+    window.gameObject.players.pop();
   } else {
-    window.players.splice(playersIndex, 1);
+    window.gameObject.players.splice(playersIndex, 1);
   }
   playerHolder.parentNode.removeChild(playerHolder);
-  for(i = 0; i < window.players.length; i++){
+  for(i = 0; i < window.gameObject.players.length; i++){
     if(i >= playersIndex){
       thisPlayerHolder = document.getElementById('player-' + (i + 2));
       thisPlayerHolder.id = 'player-' + (i + 1);
       thisPlayerHolder.setAttribute('players-index', i);
     }
   }
+  updateServer();
 }
 // adding input to update player name
 function addNameInput(element){
@@ -174,7 +239,7 @@ function updateName(element){
     nameLabel.innerHTML = newName;
     playerHolder = nameHolder.parentNode;
     playersIndex = playerHolder.getAttribute('players-index');
-    window.players[playersIndex].name = newName;
+    window.gameObject.players[playersIndex].name = newName;
   }
   nameLabel.style.display = '';
   nameHolder.removeChild(nameButton);
@@ -190,7 +255,7 @@ function cricketHit(element, target, count){
   dartsCounter = playerHolder.getElementsByClassName('darts')[0];
   roundCounter = playerHolder.getElementsByClassName('round')[0];
   doneButton = playerHolder.getElementsByClassName('done-button')[0];
-  currentPlayer = window.players[playersIndex];
+  currentPlayer = window.gameObject.players[playersIndex];
   currentRound = currentPlayer.rounds.length;
   if(currentRound == 0){
     currentPlayer.rounds.push([]);
@@ -242,15 +307,15 @@ function cricketHit(element, target, count){
 function checkGameEnd(){
   let gameEnded = false;
   let maxPoints = 0;
-  for(let i = 0; i < window.players.length; i++){
-    let pointsPlayer = window.players[i];
+  for(let i = 0; i < window.gameObject.players.length; i++){
+    let pointsPlayer = window.gameObject.players[i];
     if(pointsPlayer.points > maxPoints){
       maxPoints = pointsPlayer.points;
       winningPlayer = thisPlayer;
     }
   }
-  for(let i = 0; i < window.players.length; i++){
-    let thisPlayer = window.players[i];
+  for(let i = 0; i < window.gameObject.players.length; i++){
+    let thisPlayer = window.gameObject.players[i];
     let allClosed = true;
     for(let l = 0; l < window.cricketTargetList.length; l++){
       if(thisPlayer.hitcounts[cricketTargetList[l]] < 3){
@@ -295,24 +360,24 @@ function restartCricket(){
   blockerDiv.parentNode.removeChild(blockerDiv);
   playerHolder = document.getElementById('player-holder');
   playerHolder.innerHTML = '';
-  window.states = [];
+  window.gameObject.states = [];
   document.getElementById('undo-button').disabled = true;
   let playerNames = [];
-  while(window.players.length>0){
-    playerNames.push(window.players[0].name);
-    window.players.shift();
+  while(window.gameObject.players.length>0){
+    playerNames.push(window.gameObject.players[0].name);
+    window.gameObject.players.shift();
   }
   for (let i = 0; i < playerNames.length; i++){
     addCricketPlayer(playerNames[i]);
   }
-  console.log(window.players);
+  console.log(window.gameObject.players);
 }
 function calculatePoints(playersIndex, target, newCount) {
-  thisPlayer = window.players[playersIndex];
+  thisPlayer = window.gameObject.players[playersIndex];
     otherTargetsOpen = true;
-    for(p = 0; p < window.players.length; p++){
+    for(p = 0; p < window.gameObject.players.length; p++){
       if(p != playersIndex){
-        otherPlayer = window.players[p];
+        otherPlayer = window.gameObject.players[p];
         if(otherPlayer.hitcounts[target] > 2){
           otherTargetsOpen = false;
         }
@@ -326,9 +391,9 @@ function calculatePoints(playersIndex, target, newCount) {
     if(otherTargetsOpen){
       thisPlayer.points += pointsValue * newCount;
     } else {
-      for(p = 0; p < window.players.length; p++){
+      for(p = 0; p < window.gameObject.players.length; p++){
         if(p != playersIndex){
-          otherPlayer = window.players[p];
+          otherPlayer = window.gameObject.players[p];
           if(otherPlayer.hitcounts[target] < 3){
             otherPlayer.points -= pointsValue * newCount;
           }
@@ -339,8 +404,8 @@ function calculatePoints(playersIndex, target, newCount) {
 }
 
 function displayPoints(){
-  for(dp = 0; dp < window.players.length; dp++){
-    pointsPlayer = window.players[dp];
+  for(dp = 0; dp < window.gameObject.players.length; dp++){
+    pointsPlayer = window.gameObject.players[dp];
     pointsPlayerDiv = document.getElementById('player-' + (dp + 1));
     scoreSpan = pointsPlayerDiv.getElementsByClassName('score')[0];
     scoreSpan.innerHTML = pointsPlayer.points;
@@ -356,8 +421,8 @@ function checkAllTargets(){
 
 function checkTargetClosed(target){
   targetClosed = true;
-  for(i = 0; i < window.players.length; i++){
-    thisPlayer = window.players[i];
+  for(i = 0; i < window.gameObject.players.length; i++){
+    thisPlayer = window.gameObject.players[i];
     if(thisPlayer.hitcounts[target] < 3){
       targetClosed = false;
     }
@@ -397,7 +462,7 @@ function enableTargetButtons(target){
       let targetPlayerDiv = rowHolder.parentNode.parentNode;
       let targetPlayersIndex = targetPlayerDiv.getAttribute('players-index');
       if(targetPlayersIndex != null){
-        let targetPlayer = window.players[targetPlayersIndex];
+        let targetPlayer = window.gameObject.players[targetPlayersIndex];
         let targetPlayerRound = targetPlayer.rounds.length;
         let dartsCounter = targetPlayerDiv.getElementsByClassName('darts')[0];
         if(dartsCounter.innerHTML != '0' && targetPlayerRound == window.lowestRound){
@@ -412,15 +477,20 @@ function enableTargetButtons(target){
 }
 // add state to player
 function addState(){
-  newPlayersData = JSON.parse(JSON.stringify(window.players));
-  window.states.push(newPlayersData);
+  newPlayersData = JSON.parse(JSON.stringify(window.gameObject.players));
+  window.gameObject.states.push(newPlayersData);
   let undoButton = document.getElementById('undo-button');
   undoButton.disabled = false;
+  updateServer();
+}
+function updateServer(){
+  socket.emit('save game', window.gameObject);
+  console.log(window.gameObject);
 }
 // undo last player state
 function undoButton(){
   let undoButton = document.getElementById('undo-button');
-  statesLength = window.states.length;
+  statesLength = window.gameObject.states.length;
   if(statesLength > 0){
     loadPreviousState();
     if(statesLength == 1){
@@ -431,11 +501,11 @@ function undoButton(){
   }
 }
 function loadPreviousState(){
-  statesLength = window.states.length;
-  previousState = window.states[statesLength - 1];
-  for(let i = 0; i < window.players.length; i++){
+  statesLength = window.gameObject.states.length;
+  previousState = window.gameObject.states[statesLength - 1];
+  for(let i = 0; i < window.gameObject.players.length; i++){
     if(i < previousState.length){
-      let thisPlayer = window.players[i];
+      let thisPlayer = window.gameObject.players[i];
       thisPlayer.hitcounts = previousState[i].hitcounts;
       thisPlayer.name = previousState[i].name;
       thisPlayer.points = previousState[i].points;
@@ -443,10 +513,11 @@ function loadPreviousState(){
       displayPlayerData(i);
     }
   }
-  window.states.pop();
+  window.gameObject.states.pop();
+  updateServer();
 }
 function displayPlayerData(playersIndex){
-  displayPlayer = window.players[playersIndex];
+  displayPlayer = window.gameObject.players[playersIndex];
   if(!displayPlayer){
     console.error("player " + playersIndex + " does not exits...");
   }
@@ -490,7 +561,7 @@ function displayPlayerData(playersIndex){
   checkAllTargets();
 }
 function createPlayerDivFromIndex(playersIndex){
-  createPlayer = window.players[playersIndex];
+  createPlayer = window.gameObject.players[playersIndex];
   playerTemplate = document.getElementById('cricket-template');
   playerHolder = document.getElementById('player-holder');
   playerNumber = playersIndex + 1;
@@ -512,7 +583,7 @@ function cricketMiss(element){
   dartsCounter = playerHolder.getElementsByClassName('darts')[0];
   roundCounter = playerHolder.getElementsByClassName('round')[0];
   playersIndex = playerHolder.getAttribute('players-index');
-  currentPlayer = window.players[playersIndex];
+  currentPlayer = window.gameObject.players[playersIndex];
   currentRound = currentPlayer.rounds.length;
   if(currentRound == 0){
     currentPlayer.rounds.push([]);
@@ -548,8 +619,8 @@ function checkRoundEnd(){
   if(roundsEqual){
     // everyone is on the same round, check if round complete
     roundComplete = true;
-    for(i = 0; i < window.players.length; i++){
-      checkPlayer = window.players[i];
+    for(i = 0; i < window.gameObject.players.length; i++){
+      checkPlayer = window.gameObject.players[i];
       currentRound = checkPlayer.rounds.length - 1;
       if(checkPlayer.rounds[currentRound].length < 3){
         roundComplete = false;
@@ -560,8 +631,8 @@ function checkRoundEnd(){
     }
   } else {
     // give players time to catch up
-    for(j = 0; j < window.players.length; j++){
-      currentPlayerRound = window.players[j].rounds.length;
+    for(j = 0; j < window.gameObject.players.length; j++){
+      currentPlayerRound = window.gameObject.players[j].rounds.length;
       checkPlayerDiv = document.getElementById('player-' + (j + 1));
       if(currentPlayerRound == window.lowestRound){
         startCricketPlayerRound(j);
@@ -573,7 +644,7 @@ function checkRoundEnd(){
 function checkDisabledPlayers(){
   let roundsEqual = checkPlayerRounds();
   if(roundsEqual){
-    for(j = 0; j < window.players.length; j++){
+    for(j = 0; j < window.gameObject.players.length; j++){
       let checkPlayerDiv = document.getElementById('player-' + (j + 1));
       enablePlayerButtons(checkPlayerDiv)
     }
@@ -582,9 +653,9 @@ function checkDisabledPlayers(){
 function checkPlayerRounds(){
   // check if everyone is on the same round
   roundsEqual = true;
-  window.lowestRound = window.players[0].rounds.length;
-  for(i = 0; i < window.players.length; i++){
-    currentPlayerRound = window.players[i].rounds.length;
+  window.lowestRound = window.gameObject.players[0].rounds.length;
+  for(i = 0; i < window.gameObject.players.length; i++){
+    currentPlayerRound = window.gameObject.players[i].rounds.length;
     if(currentPlayerRound < window.lowestRound){
       roundsEqual = false;
       window.lowestRound = currentPlayerRound;
@@ -592,8 +663,8 @@ function checkPlayerRounds(){
   }
   if(!roundsEqual){
     // give players time to catch up
-    for(j = 0; j < window.players.length; j++){
-      currentPlayerRound = window.players[j].rounds.length;
+    for(j = 0; j < window.gameObject.players.length; j++){
+      currentPlayerRound = window.gameObject.players[j].rounds.length;
       checkPlayerDiv = document.getElementById('player-' + (j + 1));
       if(currentPlayerRound > window.lowestRound){
         disablePlayerButtons(checkPlayerDiv, false);
@@ -616,7 +687,7 @@ function enablePlayerButtons(element){
 
 function startNewCricketRound(){
   playerHolder = document.getElementById('player-holder');
-  for(i = 0; i < window.players.length; i++){
+  for(i = 0; i < window.gameObject.players.length; i++){
     startCricketPlayerRound(i);
   }
   playerButtons = playerHolder.getElementsByTagName('button');
@@ -627,7 +698,7 @@ function startNewCricketRound(){
   checkAllTargets();
 }
 function startCricketPlayerRound(playersIndex){
-  let roundPlayer = window.players[playersIndex];
+  let roundPlayer = window.gameObject.players[playersIndex];
   let currentRound = roundPlayer.rounds.length;
   let roundIndex = currentRound - 1;
   let roundPlayerDarts = roundPlayer.rounds[roundIndex].length;
@@ -646,14 +717,14 @@ function showPlayerStats(element){
   centerDiv = createStatsPopup();
   let playerHolder = element.parentNode;
   let playersIndex = playerHolder.getAttribute('players-index');
-  let thisPlayer = window.players[playersIndex];
+  let thisPlayer = window.gameObject.players[playersIndex];
   addPlayerStatsTable(thisPlayer, centerDiv);
 }
 
 function showAllStats(){
   centerDiv = createStatsPopup();
-  for(p = 0; p < window.players.length; p++){
-    let thisPlayer = window.players[p];
+  for(p = 0; p < window.gameObject.players.length; p++){
+    let thisPlayer = window.gameObject.players[p];
     addPlayerStatsTable(thisPlayer, centerDiv);
   }
 }
@@ -767,3 +838,20 @@ function addPlayerStatsTable(thisPlayer, centerDiv){
   totalsRow.appendChild(totalsCell);
   centerDiv.appendChild(roundsTable);
 }
+
+// safely handles circular references
+JSON.safeStringify = (obj, indent = 2) => {
+  let cache = [];
+  const retVal = JSON.stringify(
+    obj,
+    (key, value) =>
+      typeof value === "object" && value !== null
+        ? cache.includes(value)
+          ? undefined // Duplicate reference found, discard key
+          : cache.push(value) && value // Store value in our collection
+        : value,
+    indent
+  );
+  cache = null;
+  return retVal;
+};
