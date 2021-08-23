@@ -127,6 +127,10 @@ tr {
   flex-wrap: wrap;
   justify-content: space-around;
 }
+#loading-gif{
+  height: 3rem;
+  width: 3rem;
+}
 .x-button {
   position: absolute;
   top: 0;

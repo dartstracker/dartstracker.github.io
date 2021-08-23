@@ -12,7 +12,7 @@ function checkHash(){
   }
 }
 function connectSocket(){
-  window.socket = io('http://localhost:8000');
+  window.socket = io('https://dartstracker.herokuapp.com/');
   socket.on('error', function(e) {
     console.log("Error: " + JSON.stringify(e));
   });
@@ -34,9 +34,14 @@ function joinGame(gameId){
     }
   });
   socket.on('game updated', function(gameObject) {
+    addLoadingGif();
     console.log("Loading data from server...");
     window.gameObject = gameObject;
     updateFromServer();
+  });
+  socket.on('update successful', function(gameObject) {
+    console.log("Server updated!");
+    removeBlockers();
   });
 
 }
@@ -52,6 +57,7 @@ function updateFromServer(){
       displayPlayerData(p);
     }
   }
+  removeBlockers();
 }
 
 function createNewGameDoc(gameType){
@@ -104,6 +110,8 @@ function joinCricket() {
   if("players" in window.gameObject){
     updateFromServer();
   } else {
+    window.gameObject.players = [];
+    window.gameObject.states = [];
     addCricketPlayer();
   }
 }
@@ -149,13 +157,17 @@ function addCricketPlayer(name = ""){
   checkAllTargets();
   updateServer();
 }
+function addBlocker(){
+  blockerDiv = document.createElement('div');
+  blockerDiv.classList.add('blocker');
+  document.getElementsByTagName('body')[0].appendChild(blockerDiv);
+  return blockerDiv;
+}
 function removePlayerConfirm(element){
   let playerHolder = element.parentNode;
   let playersIndex = playerHolder.getAttribute('players-index');
   let thisPlayer = window.gameObject.players[playersIndex];
-  blockerDiv = document.createElement('div');
-  blockerDiv.classList.add('blocker');
-  document.getElementsByTagName('body')[0].appendChild(blockerDiv);
+  blockerDiv = addBlocker();
   confirmPopup = document.createElement('div');
   confirmPopup.classList.add('pop-up');
   centerDiv = document.createElement('div');
@@ -244,6 +256,7 @@ function updateName(element){
   nameLabel.style.display = '';
   nameHolder.removeChild(nameButton);
   nameHolder.removeChild(nameInput);
+  updateServer();
 }
 // updating display for a hit in cricket
 function cricketHit(element, target, count){
@@ -303,6 +316,7 @@ function cricketHit(element, target, count){
   if(dartsLeft == 0 && !gameEnded){
     disablePlayerButtons(playerHolder);
   }
+  updateServer();
 }
 function checkGameEnd(){
   let gameEnded = false;
@@ -330,9 +344,7 @@ function checkGameEnd(){
           disablePlayerButtons(playerDivs[p], false);
         }
       }
-      blockerDiv = document.createElement('div');
-      blockerDiv.classList.add('blocker');
-      document.getElementsByTagName('body')[0].appendChild(blockerDiv);
+      blockerDiv = addBlocker();
       gameEndedPopup = document.createElement('div');
       gameEndedPopup.classList.add('pop-up');
       centerDiv = document.createElement('div');
@@ -481,11 +493,18 @@ function addState(){
   window.gameObject.states.push(newPlayersData);
   let undoButton = document.getElementById('undo-button');
   undoButton.disabled = false;
-  updateServer();
 }
 function updateServer(){
   socket.emit('save game', window.gameObject);
-  console.log(window.gameObject);
+  addLoadingGif();
+}
+function addLoadingGif(){
+  blockerDiv = addBlocker();
+  loadingGif = document.createElement('img');
+  loadingGif.src = 'images/loading-buffering.gif'
+  loadingGif.alt = "loading";
+  loadingGif.id = "loading-gif"
+  blockerDiv.appendChild(loadingGif);
 }
 // undo last player state
 function undoButton(){
@@ -599,6 +618,7 @@ function cricketMiss(element){
   dartsCounter.innerHTML = 0;
   element.innerHTML = "Miss";
   disablePlayerButtons(playerHolder);
+  updateServer();
 }
 // disable buttons when no darts are left
 function disablePlayerButtons(element, checkEnd = true){
@@ -730,10 +750,8 @@ function showAllStats(){
 }
 
 function createStatsPopup(){
-  let blockerDiv = document.createElement('div');
-  blockerDiv.classList.add('blocker');
+  blockerDiv = addBlocker();
   blockerDiv.id = "stats";
-  document.getElementsByTagName('body')[0].appendChild(blockerDiv);
   statsPopup = document.createElement('div');
   statsPopup.classList.add('pop-up');
   xButton = document.createElement('button');
