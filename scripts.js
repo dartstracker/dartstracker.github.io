@@ -1,3 +1,21 @@
+// variables to use later
+var currentPlayerCount = 0;
+var playerData = {
+  hitcounts:{
+    20: 0,
+    19: 0,
+    18: 0,
+    17: 0,
+    16: 0,
+    15: 0,
+    bull: 0
+  },
+  name: '',
+  points: 0,
+  rounds: [[]]
+}
+gameObject = {};
+// add event listener for page load
 window.addEventListener('load', eventWindowLoaded, false);
 function eventWindowLoaded(){
   checkHash();
@@ -33,15 +51,17 @@ function joinGame(gameId){
       joinCricket();
     }
   });
-  socket.on('game updated', function(gameObject) {
+  socket.on('start loading', function() {
     addLoadingGif();
     console.log("Loading data from server...");
+  });
+  socket.on('game updated', function(gameObject) {
     window.gameObject = gameObject;
     updateFromServer();
   });
   socket.on('update successful', function(gameObject) {
     console.log("Server updated!");
-    removeBlockers();
+    removeLoadingGif();
   });
 
 }
@@ -57,7 +77,8 @@ function updateFromServer(){
       displayPlayerData(p);
     }
   }
-  removeBlockers();
+  checkGameEnd();
+  removeLoadingGif();
 }
 
 function createNewGameDoc(gameType){
@@ -116,22 +137,6 @@ function joinCricket() {
   }
 }
 
-// variables to use later
-var currentPlayerCount = 0;
-var playerData = {
-  hitcounts:{
-    20: 0,
-    19: 0,
-    18: 0,
-    17: 0,
-    16: 0,
-    15: 0,
-    bull: 0
-  },
-  name: '',
-  points: 0,
-  rounds: [[]]
-}
 var lowestRound = 0;
 cricketTargetList = ['20', '19', '18', '17', '16', '15', 'bull'];
 // add cricket player template to player holder
@@ -499,12 +504,21 @@ function updateServer(){
   addLoadingGif();
 }
 function addLoadingGif(){
-  blockerDiv = addBlocker();
+  loadingDiv = document.createElement('div');
+  loadingDiv.classList.add('loading');
+  document.getElementsByTagName('body')[0].appendChild(loadingDiv);
   loadingGif = document.createElement('img');
   loadingGif.src = 'images/loading-buffering.gif'
   loadingGif.alt = "loading";
   loadingGif.id = "loading-gif"
-  blockerDiv.appendChild(loadingGif);
+  loadingDiv.appendChild(loadingGif);
+}
+function removeLoadingGif(){
+  loadingDivs = document.getElementsByClassName('loading');
+  for(let ld = 0; ld < loadingDivs.length; ld++){
+    thisLoadingDiv = loadingDivs[ld]
+    thisLoadingDiv.parentNode.removeChild(thisLoadingDiv);
+  }
 }
 // undo last player state
 function undoButton(){
@@ -578,6 +592,10 @@ function displayPlayerData(playersIndex){
     }
   }
   checkAllTargets();
+  if(dartsLeft == 0){
+    console.log(dartsLeft);
+    disablePlayerButtons(displayPlayerDiv);
+  }
 }
 function createPlayerDivFromIndex(playersIndex){
   createPlayer = window.gameObject.players[playersIndex];
