@@ -253,6 +253,8 @@ tr {
   background-color: #383838;
   align-items: center;
   justify-content: center;
+  max-height: 90%;
+  max-width: 90%;
   overflow: auto;
 }
 .pop-up > div {

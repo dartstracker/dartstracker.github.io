@@ -72,6 +72,16 @@ function updateFromServer(){
       undoButton.disabled = false;
     }
   }
+  playerDivs = document.getElementsByClassName('player');
+  for(let p = 0; p < playerDivs.length; p++){
+    let playerHolder = playerDivs[p];
+    if(playerHolder.id !='cricket-template'){
+      let playersIndex = playerHolder.getAttribute('players-index');
+      if(playersIndex >= window.gameObject.players.length){
+        playerHolder.parentNode.removeChild(playerHolder);
+      }
+    }
+  }
   if("players" in window.gameObject){
     for(let p = 0; p < window.gameObject.players.length; p++){
       displayPlayerData(p);
@@ -160,7 +170,9 @@ function addCricketPlayer(name = ""){
   nameLabel.innerHTML = newPlayerData.name;
   playerHolder.appendChild(newPlayerDiv);
   checkAllTargets();
-  updateServer();
+  if(name == ""){
+    updateServer();
+  }
 }
 function addBlocker(){
   blockerDiv = document.createElement('div');
@@ -357,11 +369,16 @@ function checkGameEnd(){
       winnerH2 = document.createElement('h2')
       winnerH2.innerHTML = thisPlayer.name + " Wins!";
       centerDiv.appendChild(winnerH2);
-      newGameButton = document.createElement('button');
-      newGameButton.classList.add('green-button');
-      newGameButton.innerHTML = 'New Game';
-      newGameButton.addEventListener("click", restartCricket);
-      centerDiv.appendChild(newGameButton);
+      rematchButton = document.createElement('button');
+      rematchButton.classList.add('green-button');
+      rematchButton.innerHTML = 'Rematch';
+      rematchButton.addEventListener("click", restartCricket);
+      centerDiv.appendChild(rematchButton);
+      chooseButton = document.createElement('button');
+      chooseButton.classList.add('green-button');
+      chooseButton.innerHTML = 'Choose Game';
+      chooseButton.addEventListener("click", hideAll);
+      centerDiv.appendChild(chooseButton);
       statsButton = document.createElement('button');
       statsButton.classList.add('green-button');
       statsButton.innerHTML = 'View Stats';
@@ -377,17 +394,28 @@ function restartCricket(){
   blockerDiv.parentNode.removeChild(blockerDiv);
   playerHolder = document.getElementById('player-holder');
   playerHolder.innerHTML = '';
+  oldPlayerData = JSON.parse(JSON.stringify(window.gameObject.players));
+  oldStates = JSON.parse(JSON.stringify(window.gameObject.states));
+  oldGameObject = {
+    players: oldPlayerData,
+    states: oldStates
+  }
+  if("previousGames" in window.gameObject){
+    window.gameObject.previousGames.push(oldGameObject);
+  } else {
+    window.gameObject.previousGames = [oldGameObject];
+  }
   window.gameObject.states = [];
   document.getElementById('undo-button').disabled = true;
   let playerNames = [];
-  while(window.gameObject.players.length>0){
-    playerNames.push(window.gameObject.players[0].name);
-    window.gameObject.players.shift();
+  for (let i = 0; i < window.gameObject.players.length; i++){
+    playerNames.push(window.gameObject.players[i].name);
   }
+  window.gameObject.players = [];
   for (let i = 0; i < playerNames.length; i++){
     addCricketPlayer(playerNames[i]);
   }
-  console.log(window.gameObject.players);
+  updateServer();
 }
 function calculatePoints(playersIndex, target, newCount) {
   thisPlayer = window.gameObject.players[playersIndex];
@@ -559,7 +587,7 @@ function displayPlayerData(playersIndex){
     displayPlayerDiv = createPlayerDivFromIndex(playersIndex);
   }
   nameLabel = displayPlayerDiv.getElementsByTagName('label')[0];
-  nameLabel = displayPlayer.name;
+  nameLabel.innerHTML = displayPlayer.name;
   currentRound = displayPlayer.rounds.length;
   if(currentRound == 0){
     displayPlayer.rounds.push([]);
