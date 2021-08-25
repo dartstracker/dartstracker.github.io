@@ -94,6 +94,7 @@ function updateFromServer(){
 function createNewGameDoc(gameType){
   var newGameResponse = socket.emit('new game', gameType);
   socket.on('game created', function(gameObject){
+    removeLoadingGif();
     gameId = gameObject.insertedId;
     console.log("New game " + gameId + " created!");
     history.pushState(null, null, '#' + gameId);
@@ -127,6 +128,7 @@ function showCricket(){
 }
 
 function newCricket() {
+  addLoadingGif();
   connectSocket();
   createNewGameDoc("cricket");
 }
