@@ -349,7 +349,6 @@ function checkGameEnd(){
       winningPlayer = pointsPlayer;
     }
   }
-  console.log(maxPoints);
   for(let i = 0; i < window.gameObject.players.length; i++){
     let thisPlayer = window.gameObject.players[i];
     let allClosed = true;
