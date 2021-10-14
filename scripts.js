@@ -23,6 +23,7 @@ function eventWindowLoaded(){
 function checkHash(){
   var hash = window.location.hash.substr(1);
   if (hash != ''){
+    addLoadingGif();
     connectSocket();
     joinGame(hash);
   } else {
@@ -50,6 +51,7 @@ function joinGame(gameId){
     if(gameObject.gameType == "cricket"){
       joinCricket();
     }
+    removeLoadingGif();
   });
   socket.on('start loading', function() {
     addLoadingGif();
@@ -339,14 +341,15 @@ function cricketHit(element, target, count){
 }
 function checkGameEnd(){
   let gameEnded = false;
-  let maxPoints = 0;
+  let maxPoints = 0 - Number.MAX_VALUE;
   for(let i = 0; i < window.gameObject.players.length; i++){
     let pointsPlayer = window.gameObject.players[i];
     if(pointsPlayer.points > maxPoints){
       maxPoints = pointsPlayer.points;
-      winningPlayer = thisPlayer;
+      winningPlayer = pointsPlayer;
     }
   }
+  console.log(maxPoints);
   for(let i = 0; i < window.gameObject.players.length; i++){
     let thisPlayer = window.gameObject.players[i];
     let allClosed = true;
@@ -623,7 +626,6 @@ function displayPlayerData(playersIndex){
   }
   checkAllTargets();
   if(dartsLeft == 0){
-    console.log(dartsLeft);
     disablePlayerButtons(displayPlayerDiv);
   }
 }
@@ -843,11 +845,8 @@ function addPlayerStatsTable(thisPlayer, centerDiv){
   hitsHeaderCell =  document.createElement('th');
   hitsHeaderCell.innerHTML = 'Hits';
   headerRow.appendChild(hitsHeaderCell);
-  averageHeaderCell =  document.createElement('th');
-  averageHeaderCell.innerHTML = 'Round Average';
-  headerRow.appendChild(averageHeaderCell);
   rollingHeaderCell =  document.createElement('th');
-  rollingHeaderCell.innerHTML = 'Rolling Average';
+  rollingHeaderCell.innerHTML = 'Average';
   headerRow.appendChild(rollingHeaderCell);
   for(let r = 0; r < thisPlayer.rounds.length; r++){
     thisRound = thisPlayer.rounds[r];
@@ -886,11 +885,7 @@ function addPlayerStatsTable(thisPlayer, centerDiv){
       roundHitsCell = document.createElement('td');
       roundHitsCell.innerHTML = thisRoundHits;
       roundRow.appendChild(roundHitsCell);
-      thisRound3DA = thisRoundHits / 3;
-      round3DACell = document.createElement('td');
-      round3DACell.innerHTML = thisRound3DA.toFixed(2);
-      roundRow.appendChild(round3DACell);
-      rolling3DA = totalHits / (3 * roundCount);
+      rolling3DA = totalHits / (roundCount);
       rolling3DACell = document.createElement('td');
       rolling3DACell.innerHTML = rolling3DA.toFixed(2);
       roundRow.appendChild(rolling3DACell);
