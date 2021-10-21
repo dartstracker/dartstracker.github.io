@@ -147,6 +147,7 @@ function joinCricket() {
   } else {
     window.gameObject.players = [];
     window.gameObject.states = [];
+    window.gameObject.previousGames = [];
     addCricketPlayer();
   }
 }
