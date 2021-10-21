@@ -89,6 +89,7 @@ function updateFromServer(){
       displayPlayerData(p);
     }
   }
+  displayPoints();
   checkGameEnd();
   removeLoadingGif();
 }
@@ -454,11 +455,33 @@ function calculatePoints(playersIndex, target, newCount) {
 }
 
 function displayPoints(){
+  let maxPoints = 0 - Number.MAX_VALUE;
   for(dp = 0; dp < window.gameObject.players.length; dp++){
     pointsPlayer = window.gameObject.players[dp];
+    if(pointsPlayer.points > maxPoints){
+      maxPoints = pointsPlayer.points;
+    }
+  }
+  secondPoints = 0 - Number.MAX_VALUE;
+  for(dp = 0; dp < window.gameObject.players.length; dp++){
+    pointsPlayer = window.gameObject.players[dp];
+    if(pointsPlayer.points > secondPoints && pointsPlayer.points < maxPoints){
+      secondPoints = pointsPlayer.points;
+    }
+  }
+  for(dp = 0; dp < window.gameObject.players.length; dp++){
+    pointsPlayer = window.gameObject.players[dp];
+    pointsText = pointsPlayer.points.toString();
+    if(pointsPlayer.points < maxPoints){
+      pointsDifference = maxPoints - pointsPlayer.points;
+      pointsText += ' <span class="red">(-' + pointsDifference + ')</span>'
+    } else {
+      pointsDifference = maxPoints - secondPoints;
+      pointsText += ' <span class="green">(+' + pointsDifference + ')</span>'
+    }
     pointsPlayerDiv = document.getElementById('player-' + (dp + 1));
     scoreSpan = pointsPlayerDiv.getElementsByClassName('score')[0];
-    scoreSpan.innerHTML = pointsPlayer.points;
+    scoreSpan.innerHTML = pointsText;
   }
 }
 
@@ -579,6 +602,7 @@ function loadPreviousState(){
       displayPlayerData(i);
     }
   }
+  displayPoints();
   window.gameObject.states.pop();
   updateServer();
 }
@@ -607,7 +631,6 @@ function displayPlayerData(playersIndex){
   dartsCounter = displayPlayerDiv.getElementsByClassName('darts')[0];
   dartsCounter.innerHTML = dartsLeft;
   scoreCounter = displayPlayerDiv.getElementsByClassName('score')[0];
-  scoreCounter.innerHTML = displayPlayer.points;
   enablePlayerButtons(displayPlayerDiv);
   hitCounters = displayPlayerDiv.getElementsByClassName('hitcounter');
   for(i = 0; i < hitCounters.length; i++){

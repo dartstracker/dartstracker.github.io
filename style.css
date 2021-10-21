@@ -99,6 +99,12 @@ tr {
   cursor: not-allowed;
   color:DarkSlateGrey;
 }
+.red{
+  color:red;
+}
+.green{
+  color:green;
+}
 .red-button {
   background-color: red;
   font-weight: bold;
