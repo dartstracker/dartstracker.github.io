@@ -90,6 +90,7 @@ function updateFromServer(){
     }
   }
   displayPoints();
+  removeBlockers();
   checkGameEnd();
   removeLoadingGif();
 }
@@ -179,6 +180,7 @@ function addCricketPlayer(name = ""){
   if(name == ""){
     updateServer();
   }
+  displayPoints();
 }
 function addBlocker(){
   blockerDiv = document.createElement('div');
@@ -463,21 +465,25 @@ function displayPoints(){
     }
   }
   secondPoints = 0 - Number.MAX_VALUE;
+  secondFound = false;
   for(dp = 0; dp < window.gameObject.players.length; dp++){
     pointsPlayer = window.gameObject.players[dp];
     if(pointsPlayer.points > secondPoints && pointsPlayer.points < maxPoints){
+      secondFound = true;
       secondPoints = pointsPlayer.points;
     }
   }
   for(dp = 0; dp < window.gameObject.players.length; dp++){
     pointsPlayer = window.gameObject.players[dp];
     pointsText = pointsPlayer.points.toString();
-    if(pointsPlayer.points < maxPoints){
-      pointsDifference = maxPoints - pointsPlayer.points;
-      pointsText += ' <span class="red">(-' + pointsDifference + ')</span>'
-    } else {
-      pointsDifference = maxPoints - secondPoints;
-      pointsText += ' <span class="green">(+' + pointsDifference + ')</span>'
+    if(secondFound){
+      if(pointsPlayer.points < maxPoints){
+        pointsDifference = maxPoints - pointsPlayer.points;
+        pointsText += ' <span class="red">(-' + pointsDifference + ')</span>'
+      } else {
+        pointsDifference = maxPoints - secondPoints;
+        pointsText += ' <span class="green">(+' + pointsDifference + ')</span>'
+      }
     }
     pointsPlayerDiv = document.getElementById('player-' + (dp + 1));
     scoreSpan = pointsPlayerDiv.getElementsByClassName('score')[0];
