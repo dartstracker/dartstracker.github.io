@@ -1,6 +1,6 @@
 @font-face {
   font-family: JoeHand;
-  src: url("/fonts/JoeHand-Regular.woff");
+  src: url("fonts/JoeHand-Regular.woff");
 }
 body {
   font-family: "JoeHand", sans-serif;
