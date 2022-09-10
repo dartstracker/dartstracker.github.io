@@ -31,7 +31,7 @@ function checkHash(){
   }
 }
 function connectSocket(){
-  window.socket = io('https://dartstracker.onrender.com/');
+  window.socket = io('https://dartstrackerapp.matchajoejoe.repl.co');
   socket.on('error', function(e) {
     console.log("Error: " + JSON.stringify(e));
   });
